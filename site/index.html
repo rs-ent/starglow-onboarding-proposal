@@ -30,6 +30,7 @@
   .footL{position:fixed;bottom:26px;left:44px;z-index:10;font-size:14.5px;font-weight:700;color:var(--ink2);letter-spacing:.02em}
   .footR{position:fixed;bottom:22px;right:44px;z-index:10;font-weight:900;font-size:22px;letter-spacing:.16em;
     background:linear-gradient(90deg,#6E2DC4,#9B4DE0,#E0489A);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .footR.up{top:34px;left:44px;bottom:auto;right:auto;font-size:20px}
   @media(max-width:600px){ .frame{inset:10px;border-radius:16px} }
 
   /* DECK */
@@ -44,7 +45,10 @@
   .sInner::-webkit-scrollbar-thumb{background:var(--border2);border-radius:8px}
 
   /* COVER */
-  .cover{text-align:left;align-self:flex-start;max-width:none;padding-top:6vh}
+  .cover{text-align:left;align-self:stretch;max-width:none;padding-top:6vh;
+    display:flex;flex-direction:column;min-height:calc(100vh - 150px)}
+  .coverStats{flex:1;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .coverStats .cstat{flex:1;min-width:200px;text-align:center}
   .cover .coverHead{border-left:12px solid var(--gold);padding-left:28px}
   .hlbox{display:inline-block;background:var(--gold);color:#fff;font-weight:900;letter-spacing:.04em;
     font-size:clamp(46px,8vw,104px);line-height:1.03;padding:5px 18px 11px}
@@ -54,6 +58,35 @@
   .cover .tagline .gt{color:var(--gold);letter-spacing:.08em}
   .cover .hint{margin-top:20px;color:var(--ink3);font-size:14px;text-align:left;animation:pulse 2.4s infinite}
   @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+  /* COVER 2-column + right stats */
+  .coverGrid{display:flex;gap:5vw;align-items:center;flex-wrap:wrap}
+  .coverLeft{flex:1 1 460px;min-width:300px}
+  .coverRight{flex:0 1 360px;min-width:240px;display:flex;flex-direction:column;gap:16px}
+  .cstat{background:linear-gradient(135deg,#6E2DC4,#9B4DE0);
+    border:none;border-radius:18px;padding:24px 26px;box-shadow:0 14px 30px rgba(110,45,196,.30)}
+  .cstat .cv{font-size:clamp(34px,5vw,52px);font-weight:900;color:#fff;line-height:1}
+  .cstat .cl{font-size:15px;color:rgba(255,255,255,.92);margin-top:8px;font-weight:600}
+  /* group KPI — 제목 옆 인라인 */
+  .dhead{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
+  .gkpi{display:inline-flex;flex-direction:column;align-items:center;gap:5px;
+    background:linear-gradient(135deg,#6E2DC4,#9B4DE0);border:none;border-radius:14px;padding:12px 22px;
+    box-shadow:0 10px 24px rgba(110,45,196,.28)}
+  .gkpi .v{font-size:clamp(22px,3.2vw,32px);font-weight:900;color:#fff;line-height:1}
+  .gkpi .l{font-size:13.5px;color:rgba(255,255,255,.92);font-weight:600}
+  /* summary (한 장 요약) */
+  .summary h2{font-size:clamp(26px,4.4vw,40px);font-weight:900;text-align:center;margin-bottom:6px}
+  .summary .ssub{text-align:center;color:var(--ink3);font-size:15px;margin-bottom:24px}
+  .sStats{display:flex;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+  .sStats .cstat{flex:1;min-width:200px;text-align:center}
+  .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .scard{background:var(--surf);border:1px solid var(--border);border-radius:18px;padding:22px;cursor:pointer;
+    transition:.16s;box-shadow:0 8px 20px rgba(78,38,140,.06)}
+  .scard:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 16px 30px rgba(78,38,140,.14)}
+  .scard .sn{font-size:13px;font-weight:800;color:var(--nova);letter-spacing:.06em}
+  .scard .st{font-size:19px;font-weight:900;color:var(--ink);margin:6px 0 8px;line-height:1.25}
+  .scard .sk{font-size:15px;font-weight:800;color:var(--gold)}
+  @media(max-width:780px){ .sgrid{grid-template-columns:1fr 1fr} }
+  @media(max-width:520px){ .sgrid{grid-template-columns:1fr} }
 
   /* LEGEND */
   .panel{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:30px 30px}
@@ -69,20 +102,20 @@
   .divider .gnum{margin-top:14px;color:var(--gold);font-weight:800;letter-spacing:.14em;font-size:16px}
   .divider h2{font-size:clamp(32px,6vw,54px);font-weight:900;margin-top:6px}
   .divider .gsub{margin-top:14px;color:var(--ink2);font-size:clamp(16px,2.8vw,21px)}
-  .idx{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin:36px auto 0;max-width:980px}
+  .idx{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:24px auto 0;max-width:980px}
   .idxbox{display:flex;align-items:center;justify-content:center;gap:13px;cursor:pointer;text-align:center;
-    flex:0 1 auto;min-width:240px;max-width:460px;
-    background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:18px 22px;
+    flex:0 1 auto;min-width:230px;max-width:460px;
+    background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:14px 20px;
     transition:.16s;box-shadow:0 6px 16px rgba(78,38,140,.06)}
   .idxbox:hover{border-color:var(--gold);background:rgba(110,45,196,.05);transform:translateY(-3px);box-shadow:0 14px 28px rgba(78,38,140,.14)}
   .idxbox .in{flex:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
     background:rgba(110,45,196,.10);color:var(--gold);font-weight:800;font-size:14px}
   .idxbox .it{font-size:17px;font-weight:800;color:var(--ink);line-height:1.3;white-space:nowrap}
-  .idx.idxcol{flex-direction:column;align-items:center;gap:16px;max-width:1040px}
-  .idxgroup{width:100%;background:#F7F4FB;border:1px solid var(--border);border-radius:20px;
-    padding:18px 22px 24px;box-shadow:0 8px 22px rgba(78,38,140,.06)}
-  .idxsec{width:100%;text-align:center;font-weight:800;color:var(--nova);font-size:16.5px;letter-spacing:.02em;margin:4px 0 16px}
-  .idxrow{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;width:100%}
+  .idx.idxcol{flex-direction:column;align-items:center;gap:12px;max-width:1040px}
+  .idxgroup{width:100%;background:#F7F4FB;border:1px solid var(--border);border-radius:18px;
+    padding:14px 20px 18px;box-shadow:0 8px 22px rgba(78,38,140,.06)}
+  .idxsec{width:100%;text-align:center;font-weight:800;color:var(--nova);font-size:16px;letter-spacing:.02em;margin:2px 0 12px}
+  .idxrow{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;width:100%}
   .idxplus{width:100%;text-align:center;color:var(--gold);font-size:32px;font-weight:900;line-height:1}
   .divider h2 .gn{color:var(--gold)}
 
@@ -273,8 +306,9 @@
 const T = (...t)=>t; // tag helper
 const DECK = [
   {type:'cover'},
+  {type:'summary'},
 
-  {type:'divider', em:'💰', gnum:'GROUP 1', title:'수익 & 보상', gsub:'아래 보상·정산 방식 중에서 고르고, 추가 인센티브를 더하세요.'},
+  {type:'divider', em:'💰', gnum:'GROUP 1', title:'수익 & 보상', kpi:{v:'최대 90%',l:'팬 결제를 소속사에 정산'}, gsub:'아래 보상·정산 방식 중에서 고르고, 추가 인센티브를 더하세요.'},
   {type:'card', num:'1-1', title:'아티스트가 활동할 때마다 받는 직접 보상', tags:T('중소신인','솔로'),
     lead:'콘텐츠를 올릴수록 수익이 쌓입니다',
     pain:'"콘텐츠를 만들어도 그게 바로 수익이 되진 않아요."',
@@ -333,7 +367,7 @@ const DECK = [
     spec:[['해지 위약금','기존 플랫폼 위약금 일부 ~ 전액 보전 (협의)'],['법무 검토','계약 해지 적법성 · 권리관계 무상 검토'],['데이터 · 콘텐츠 이관','팬 명단 · 게시물 · 굿즈 데이터 이전 지원'],['이전 기념 이벤트','상금 · 경품 비용 당사 예산 부담'],['전담 합류 지원','셋업 · 마이그레이션 전담 매니저 배정']],
     note:'※ 위약금 보전 범위·한도 등 세부 조건은 협의 후 결정합니다.'},
 
-  {type:'divider', em:'🛠', gnum:'GROUP 2', title:'구축 & 운영 대행', gsub:'소속사는 콘텐츠(IP)와 아티스트에만 집중하세요. 나머지는 저희가 합니다.'},
+  {type:'divider', em:'🛠', gnum:'GROUP 2', title:'구축 & 운영 대행', kpi:{v:'0원',l:'전용 팬덤 앱 구축비'}, gsub:'소속사는 콘텐츠(IP)와 아티스트에만 집중하세요. 나머지는 저희가 합니다.'},
   {type:'card', num:'2-1', title:'공식 팬덤 앱 무료 구축', tags:T('중소신인','솔로'),
     lead:'개발비 0으로 전용 팬덤 앱',
     pain:'"자체 앱을 만들려면 개발비도 인력도 없어요."',
@@ -350,7 +384,7 @@ const DECK = [
     cols:['혜택','내용'],
     spec:[['공식 멤버 엠블럼','프로필에 팬클럽 인증 배지 표시'],['한정 콘텐츠','팬클럽 전용 공개'],['선예매 우선권','공연 · 팬미팅 · 이벤트 우선 참여'],['Glow 적립','MD 구매 시 Glow 적립 · 활동으로 모은 Glow로 결제 가능'],['팬클럽 활동','게시판 · 투표 · 작곡 · 질문(Ask) 등'],['생일 메시지','아티스트 메시지 제공']]},
 
-  {type:'divider', em:'📊', gnum:'GROUP 3', title:'데이터 & 글로벌 진출', gsub:'팬덤 데이터로 다음 전략을 짭니다.'},
+  {type:'divider', em:'📊', gnum:'GROUP 3', title:'데이터 & 글로벌 진출', kpi:{v:'무료',l:'팬덤 · 해외 수요 데이터 리포트'}, gsub:'팬덤 데이터로 다음 전략을 짭니다.'},
   {type:'card', num:'3-1', title:'팬덤 데이터 리포트 & 가치 분석 (무료 제공)', tags:T('중견기획사','글로벌','대형'),
     lead:'공연 · MD · 투자 판단을 데이터로',
     ans:'팬 활동 데이터로 국가별 팬덤·반응·구매는 물론, 아티스트의 <b>성장성·가치를 돈 가치로 환산한 현황판</b>까지 무료로 제공합니다.',
@@ -363,7 +397,7 @@ const DECK = [
     cols:['분석','판단'],
     spec:[['국가별 팬덤 규모','어느 국가에 팬이 많은지'],['예상 티켓 수요','공연장 규모 판단'],['적정 티켓가','팬덤 구매력 분석'],['MD 판매 가능성','현장 굿즈 예상'],['우선 진출 국가','싱가포르 · 방콕 · 자카르타 등']]},
 
-  {type:'divider', em:'📣', gnum:'GROUP 4', title:'마케팅 & 팬덤 확산', gsub:'노출과 예산을 아티스트에게 집중합니다.'},
+  {type:'divider', em:'📣', gnum:'GROUP 4', title:'마케팅 & 팬덤 확산', kpi:{v:'20만+',l:'월 이용자에게 노출 집중'}, gsub:'노출과 예산을 아티스트에게 집중합니다.'},
   {type:'card', num:'4-1', title:'묻히지 않는 초기 노출 몰아주기', tags:T('중소신인','솔로'),
     lead:'신규 아티스트에 노출을 몰아줍니다',
     pain:'"거대 플랫폼에 들어가면 대형 아티스트한테 노출 다 쏠려요."',
@@ -389,7 +423,7 @@ const DECK = [
     cols:['팬 활동','보상'],
     spec:[['일일 퀘스트 · 출석','Glow 적립'],['응원 미션 달성','Glow + 디지털 포토카드'],['게시글 · 케어 활동','Glow 적립'],['투표 1위 (팬덤)','배너 노출 · 광고 · 한정 굿즈'],['컬렉션 완성','한정 포토카드북'],['친구 초대','팬덤 랭킹 반영']]},
 
-  {type:'divider', em:'🤖', gnum:'GROUP 5', title:'기술 · AI · 새 수익원', gsub:'흔한 팬 플랫폼이 못 하는 경험을 제안합니다.'},
+  {type:'divider', em:'🤖', gnum:'GROUP 5', title:'기술 · AI · 새 수익원', kpi:{v:'10개 국어',l:'번역 + AI 스튜디오 콘텐츠'}, gsub:'흔한 팬 플랫폼이 못 하는 경험을 제안합니다.'},
   {type:'card', num:'5-1', title:'AI 스튜디오 — 아티스트 목소리로 만드는 팬 콘텐츠', tags:T('솔로','중견기획사','대형'),
     lead:'팬이 만든 콘텐츠가 콘텐츠 수익 + 입소문으로',
     pain:'"매일 직접 콘텐츠 만드는 게 번아웃이에요."',
@@ -402,7 +436,7 @@ const DECK = [
     ans:'게시글·댓글·메시지·콘텐츠가 <b>10개 국어로 인라인 번역</b>됩니다. 해외 팬도 언어 장벽 없이 참여하고 결제할 수 있어, 글로벌 팬덤과 매출이 함께 열립니다.',
     give:['10개 국어 인라인 번역 (한·영·일·중·스페인·포르투갈·인니·태국·베트남 등)','해외 팬 참여 · 결제 장벽 제거','글로벌 커뮤니티 · 매출 확장']},
 
-  {type:'divider', em:'🧩', gnum:'GROUP 6', title:'타입별 추천 패키지', gsub:'내 상황에 맞는 추천 조합을 확인하세요. (보상·정산은 1번에서 자유롭게 조합)'},
+  {type:'divider', em:'🧩', gnum:'GROUP 6', title:'타입별 추천 패키지', gsub:'상황에 맞는 추천 조합을 확인하세요. (보상·정산은 1번에서 자유롭게 조합)'},
 
   {type:'narrative'},
   {type:'closing'},
@@ -435,6 +469,11 @@ function render(s){
       <div class="t2">PROPOSAL</div>
     </div>
     <div class="hint">스크롤 · → · 스와이프로 넘기기</div>
+    <div class="coverStats">
+      <div class="cstat"><div class="cv">최대 90%</div><div class="cl">팬 결제 정산</div></div>
+      <div class="cstat"><div class="cv">0원</div><div class="cl">전용 팬덤 앱 구축비</div></div>
+      <div class="cstat"><div class="cv">20만+</div><div class="cl">월 이용자 노출</div></div>
+    </div>
   </div>`;
 
   if(s.type==='legend') return `<div class="sInner"><div class="panel">
@@ -451,11 +490,26 @@ function render(s){
 
   if(s.type==='divider'){ const n=(String(s.gnum).match(/\d+/)||[''])[0];
     const extra = n==='6' ? `<div class="recolist" style="max-width:860px;margin:34px auto 0;text-align:left">${RECO.map(r=>`<div class="recorow"><span class="rtag">${r[0]}</span><span class="rcombo">${r[1]}</span></div>`).join('')}</div>` : '';
+    const kpi = s.kpi ? `<div class="gkpi"><span class="v">${s.kpi.v}</span><span class="l">${s.kpi.l}</span></div>` : '';
     return `<div class="sInner divider">
-    <h2><span class="gn">${n}.</span> ${s.title}</h2>
+    <div class="dhead"><h2><span class="gn">${n}.</span> ${s.title}</h2>${kpi}</div>
     <div class="gsub">${s.gsub}</div>
     ${extra}
   </div>`; }
+
+  if(s.type==='summary') return `<div class="sInner summary">
+    <h2><span style="color:var(--gold)">✦</span> 한 장으로 보는 제안 <span style="color:var(--gold)">✦</span></h2>
+    <div class="ssub">관심 가는 항목을 누르면 해당 페이지로 이동해요</div>
+    <div class="sgrid">
+    ${[['1','수익 & 보상','수익 90% 정산 + 활동 보상·개런티 등 선택'],
+       ['2','구축 & 운영 대행','전용 앱·MD·공연·팬클럽 전부 대행'],
+       ['3','데이터 & 글로벌','공연·MD·투자 판단용 팬덤 데이터'],
+       ['4','마케팅 & 확산','노출 몰아주기·광고비·팬 서포트 지원'],
+       ['5','기술 · AI','AI 스튜디오 콘텐츠 + 번역'],
+       ['6','타입별 추천','상황에 맞는 패키지 추천']]
+      .map(c=>`<div class="scard" data-group="${c[0]}"><div class="sn">GROUP ${c[0]}</div><div class="st">${c[1]}</div><div class="sk">${c[2]}</div></div>`).join('')}
+    </div>
+  </div>`;
 
   if(s.type==='card') return `<div class="sInner"><div class="card">
     <div class="num">${s.num}</div>
@@ -538,7 +592,7 @@ function render(s){
 }
 
 /* 가로로 넘기는 슬라이드 = 표지·그룹표지(목차)·인트로·마무리만. 카드/메뉴/추천은 팝업 전용. */
-const VISIBLE = new Set(['cover','divider','narrative','closing']);
+const VISIBLE = new Set(['cover','summary','divider','narrative','closing']);
 const deck = document.getElementById('deck');
 const vis = DECK.map((s,i)=>({s,i})).filter(x=>VISIBLE.has(x.s.type));
 deck.innerHTML = vis.map(x=>`<section class="slide">${render(x.s)}</section>`).join('');
@@ -566,6 +620,7 @@ function go(i){
   dots.forEach((d,k)=>d.classList.toggle('on',k===idx));
   prevB.classList.toggle('disabled',idx===0);
   nextB.classList.toggle('disabled',idx===N-1);
+  const fr=document.querySelector('.footR'); if(fr) fr.classList.toggle('up', idx!==0);
   const inner=slides[idx].querySelector('.sInner'); if(inner) inner.scrollTop=0;
 }
 prevB.onclick=()=>go(idx-1); nextB.onclick=()=>go(idx+1);
@@ -601,6 +656,13 @@ const boxHTML=m=>`<div class="idxbox" data-open="${m.i}">${m.num?`<span class="i
     inner.appendChild(wrap);
   });
   document.querySelectorAll('.idxbox').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();openModal(+b.dataset.open);}));
+})();
+
+/* 요약 카드 → 해당 그룹 페이지로 이동 */
+(function(){
+  const gslide={};
+  DECK.forEach((s,i)=>{ if(s.type==='divider'){ const n=(String(s.gnum).match(/\d+/)||[''])[0]; if(deckToSlide[i]!=null) gslide[n]=deckToSlide[i]; }});
+  document.querySelectorAll('.scard').forEach(c=>c.addEventListener('click',()=>{ const p=gslide[c.dataset.group]; if(p!=null) go(p); }));
 })();
 
 go(0);
