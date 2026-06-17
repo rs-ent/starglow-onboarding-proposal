@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+<title>STARGLOW · 아티스트 온보딩 제안서</title>
+<style>
+  :root{
+    --bg0:#EFE9F8; --bg1:#F7F4FC; --bg3:#6E2DC4;
+    --nova:#8B3FD6; --gold:#6E2DC4; --pink:#E0489A; --mint:#1FA37A; --luna:#7B53C9;
+    --ink:#241A3D; --ink2:#5C5475; --ink3:#9690A8;
+    --surf:#FFFFFF; --surf2:#FBF9FE;
+    --border:#ECE6F5; --border2:#D9CDEE;
+    --r:22px; --rs:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden}
+  body{
+    font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+    color:var(--ink); line-height:1.6;
+    background:
+      radial-gradient(900px 600px at 10% -12%, rgba(110,45,196,.08), transparent 60%),
+      radial-gradient(800px 600px at 102% 0%, rgba(224,72,154,.06), transparent 55%),
+      linear-gradient(180deg, #F7F4FC 0%, #FFFFFF 58%);
+  }
+  .stars{display:none}
+  /* 페이지 테두리 프레임 */
+  .frame{position:fixed;inset:20px;border:1.5px solid var(--border2);border-radius:24px;pointer-events:none;z-index:8;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.6)}
+  .footL{position:fixed;bottom:26px;left:44px;z-index:10;font-size:14.5px;font-weight:700;color:var(--ink2);letter-spacing:.02em}
+  .footR{position:fixed;bottom:22px;right:44px;z-index:10;font-weight:900;font-size:22px;letter-spacing:.16em;
+    background:linear-gradient(90deg,#6E2DC4,#9B4DE0,#E0489A);-webkit-background-clip:text;background-clip:text;color:transparent}
+  @media(max-width:600px){ .frame{inset:10px;border-radius:16px} }
+
+  /* DECK */
+  .stage{position:fixed;inset:0;overflow:hidden;z-index:1}
+  .deck{display:flex;height:100%;will-change:transform;
+    transition:transform .6s cubic-bezier(.66,.02,.2,1)}
+  .slide{flex:0 0 100vw;height:100vh;display:flex;align-items:center;justify-content:center;
+    padding:60px 5vw 78px}
+  .sInner{width:100%;max-width:1180px;max-height:100%;overflow-y:auto;overflow-x:hidden;
+    padding:4px 6px;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+  .sInner::-webkit-scrollbar{width:7px}
+  .sInner::-webkit-scrollbar-thumb{background:var(--border2);border-radius:8px}
+
+  /* COVER */
+  .cover{text-align:left;align-self:flex-start;max-width:none;padding-top:6vh}
+  .cover .coverHead{border-left:12px solid var(--gold);padding-left:28px}
+  .hlbox{display:inline-block;background:var(--gold);color:#fff;font-weight:900;letter-spacing:.04em;
+    font-size:clamp(46px,8vw,104px);line-height:1.03;padding:5px 18px 11px}
+  .cover .t1{font-weight:900;color:var(--ink);font-size:clamp(42px,7.6vw,98px);line-height:1.06;margin-top:9px;letter-spacing:.01em}
+  .cover .t2{font-weight:900;color:#B2A8C8;font-size:clamp(42px,7.6vw,98px);line-height:1.06;letter-spacing:.01em}
+  .cover .tagline{margin-top:30px;color:var(--ink2);font-size:clamp(16px,2.6vw,22px)}
+  .cover .tagline .gt{color:var(--gold);letter-spacing:.08em}
+  .cover .hint{margin-top:20px;color:var(--ink3);font-size:14px;text-align:left;animation:pulse 2.4s infinite}
+  @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+  /* LEGEND */
+  .panel{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:30px 30px}
+  .panel h2{font-size:clamp(20px,3.6vw,28px);margin-bottom:8px}
+  .panel .lead{color:var(--ink2);font-size:15px;margin-bottom:18px}
+  .legendT{width:100%;border-collapse:collapse;font-size:14px}
+  .legendT td{padding:10px 8px;border-top:1px solid var(--border);vertical-align:top}
+  .legendT td:first-child{white-space:nowrap;width:130px}
+
+  /* DIVIDER */
+  .divider{text-align:center}
+  .divider .em{font-size:clamp(44px,8vw,72px);filter:drop-shadow(0 10px 24px rgba(110,45,196,.22))}
+  .divider .gnum{margin-top:14px;color:var(--gold);font-weight:800;letter-spacing:.14em;font-size:16px}
+  .divider h2{font-size:clamp(32px,6vw,54px);font-weight:900;margin-top:6px}
+  .divider .gsub{margin-top:14px;color:var(--ink2);font-size:clamp(16px,2.8vw,21px)}
+  .idx{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin:36px auto 0;max-width:980px}
+  .idxbox{display:flex;align-items:center;justify-content:center;gap:13px;cursor:pointer;text-align:center;
+    flex:0 1 auto;min-width:240px;max-width:460px;
+    background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:18px 22px;
+    transition:.16s;box-shadow:0 6px 16px rgba(78,38,140,.06)}
+  .idxbox:hover{border-color:var(--gold);background:rgba(110,45,196,.05);transform:translateY(-3px);box-shadow:0 14px 28px rgba(78,38,140,.14)}
+  .idxbox .in{flex:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(110,45,196,.10);color:var(--gold);font-weight:800;font-size:14px}
+  .idxbox .it{font-size:17px;font-weight:800;color:var(--ink);line-height:1.3;white-space:nowrap}
+  .idx.idxcol{flex-direction:column;align-items:center;gap:16px;max-width:1040px}
+  .idxgroup{width:100%;background:#F7F4FB;border:1px solid var(--border);border-radius:20px;
+    padding:18px 22px 24px;box-shadow:0 8px 22px rgba(78,38,140,.06)}
+  .idxsec{width:100%;text-align:center;font-weight:800;color:var(--nova);font-size:16.5px;letter-spacing:.02em;margin:4px 0 16px}
+  .idxrow{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;width:100%}
+  .idxplus{width:100%;text-align:center;color:var(--gold);font-size:32px;font-weight:900;line-height:1}
+  .divider h2 .gn{color:var(--gold)}
+
+  /* CARD */
+  .card{background:var(--surf);
+    border:1px solid var(--border);border-radius:var(--r);padding:38px 44px;
+    box-shadow:0 16px 40px rgba(78,38,140,.10)}
+  .card .num{font-size:15px;color:var(--nova);font-weight:800;letter-spacing:.1em}
+  .card h2{margin:8px 0 16px;font-size:clamp(26px,4vw,38px);font-weight:800;line-height:1.22}
+  .lead2{display:flex;align-items:center;gap:9px;background:linear-gradient(90deg,rgba(110,45,196,.10),rgba(224,72,154,.05));
+    border:1px solid rgba(110,45,196,.20);border-radius:13px;padding:14px 18px;margin-bottom:18px;
+    color:var(--gold);font-weight:800;font-size:clamp(17px,2.6vw,21px);line-height:1.4}
+  .lead2::before{content:"✦";color:var(--gold);font-size:15px;flex:none}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+  .tag{font-size:14px;font-weight:700;padding:6px 14px;border-radius:999px;
+    background:rgba(110,45,196,.08);color:var(--luna);border:1px solid rgba(110,45,196,.18)}
+  .pain{color:var(--ink3);font-size:17px;font-style:italic;border-left:3px solid var(--pink);padding-left:16px;margin-bottom:16px}
+  .ans{color:var(--ink2);font-size:18px;margin-bottom:18px;line-height:1.65}
+  .ans b{color:var(--ink)}
+  ul.give{list-style:none;display:grid;gap:11px}
+  ul.give li{font-size:17px;color:var(--ink2);padding-left:24px;position:relative}
+  ul.give li::before{content:"✦";position:absolute;left:0;color:var(--gold);font-size:13px;top:4px}
+  table.spec{width:100%;border-collapse:collapse;margin-top:18px;font-size:16.5px;
+    background:var(--surf);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+  table.spec th,table.spec td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--border)}
+  table.spec td{color:var(--ink2)}
+  table.spec th{background:#F5F1FB;color:var(--nova);font-weight:700;width:42%}
+  table.spec thead th{background:var(--gold);color:#fff;font-size:14px;letter-spacing:.04em;width:auto}
+  table.spec thead th:first-child{width:42%}
+  table.spec tr:last-child td,table.spec tr:last-child th{border-bottom:none}
+  table.spec .big{color:var(--gold);font-weight:800}
+  table.spec .reco .big{color:var(--mint)}
+  .note{margin-top:16px;font-size:14px;color:var(--ink3)}
+
+  /* INFOGRAPHICS */
+  .donutWrap{display:flex;align-items:center;gap:22px;margin:6px 0 16px;flex-wrap:wrap}
+  .donut{--p:90;width:150px;height:150px;border-radius:50%;flex:none;position:relative;
+    background:conic-gradient(var(--gold) calc(var(--p)*1%), #E9E1F4 0);
+    display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(110,45,196,.18)}
+  .donut::after{content:"";position:absolute;inset:15px;border-radius:50%;background:#fff}
+  .donut b{position:relative;z-index:1;font-size:36px;font-weight:900;color:var(--gold)}
+  .donutTxt{font-size:18.5px;color:var(--ink2);flex:1;min-width:180px;line-height:1.5} .donutTxt b{color:var(--gold)}
+  .bars{display:grid;gap:13px;margin:8px 0 16px}
+  .bar{display:grid;grid-template-columns:minmax(100px,160px) 1fr auto;align-items:center;gap:14px}
+  .bar .bl{font-size:15px;color:var(--ink2)}
+  .bar .bt{height:18px;border-radius:9px;background:#EDE7F6;overflow:hidden}
+  .bar .bf{height:100%;border-radius:9px;background:linear-gradient(90deg,var(--nova),var(--gold))}
+  .bar .bv{font-size:16px;font-weight:800;color:var(--gold);white-space:nowrap}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;margin:10px 0 16px}
+  .fstep{background:var(--surf2);border:1px solid var(--border2);border-radius:13px;padding:13px 19px;font-size:16px;font-weight:800;color:var(--ink)}
+  .farr{color:var(--gold);font-weight:900;font-size:19px}
+  .stats{display:flex;flex-wrap:wrap;gap:15px;margin:8px 0 16px}
+  .stat{flex:1;min-width:150px;background:linear-gradient(160deg,var(--surf2),var(--surf));
+    border:1px solid var(--border);border-radius:18px;padding:24px 18px;text-align:center;box-shadow:0 8px 20px rgba(78,38,140,.07)}
+  .stat .sv{font-size:clamp(26px,5vw,40px);font-weight:900;color:var(--gold);line-height:1.05}
+  .stat .sl{font-size:14.5px;color:var(--ink2);margin-top:9px}
+
+  /* MENU */
+  .opt{display:flex;gap:15px;align-items:flex-start;padding:18px 20px;border:1px solid var(--border);
+    border-radius:var(--rs);margin-top:13px;cursor:pointer;transition:.16s}
+  .opt:hover{border-color:var(--gold)}
+  .opt.sel{background:rgba(110,45,196,.07);border-color:var(--gold)}
+  .opt .box{width:26px;height:26px;border-radius:8px;border:2px solid var(--border2);flex:none;margin-top:1px;
+    display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;transition:.16s}
+  .opt.sel .box{background:var(--gold);border-color:var(--gold)}
+  .opt .t{font-weight:800;font-size:17.5px}
+  .opt .d{color:var(--ink2);font-size:15px;margin-top:4px}
+  /* 인센티브 선택 그리드 */
+  .optgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+  .optcard{display:flex;gap:14px;align-items:flex-start;padding:18px;border:1.5px solid var(--border);
+    border-radius:16px;cursor:pointer;transition:.16s;background:var(--surf)}
+  .optcard:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 12px 26px rgba(78,38,140,.12)}
+  .optcard.sel{border-color:var(--gold);background:rgba(110,45,196,.06)}
+  .optcard .lt{flex:none;width:42px;height:42px;border-radius:12px;background:rgba(110,45,196,.10);
+    color:var(--gold);font-weight:900;font-size:19px;display:flex;align-items:center;justify-content:center}
+  .optcard.sel .lt{background:var(--gold);color:#fff}
+  .optcard .ot{font-weight:800;font-size:16.5px}
+  .optcard .od{color:var(--ink2);font-size:14px;margin-top:5px;line-height:1.45}
+  /* 타입별 추천 리스트 */
+  .recolist{display:grid;gap:12px;margin-top:12px}
+  .recorow{display:flex;align-items:center;gap:14px;padding:16px 18px;border:1px solid var(--border);
+    border-radius:14px;background:var(--surf);box-shadow:0 5px 14px rgba(78,38,140,.05)}
+  .recorow .rtag{flex:none;font-weight:800;color:var(--luna);background:rgba(110,45,196,.08);
+    border:1px solid rgba(110,45,196,.18);border-radius:999px;padding:7px 15px;font-size:14.5px;min-width:104px;text-align:center}
+  .recorow .rcombo{font-size:16px;color:var(--ink2)} .recorow .rcombo b{color:var(--gold)}
+  @media(max-width:600px){.optgrid{grid-template-columns:1fr} .recorow{flex-direction:column;align-items:flex-start;gap:8px}}
+
+  /* NARRATIVE */
+  .narr{text-align:center}
+  .narr .q{font-size:clamp(22px,4vw,36px);font-weight:800;line-height:1.5;max-width:920px;margin:0 auto}
+  .narr .a{color:var(--ink3)} .narr .b{color:var(--gold);display:block;margin-top:22px}
+  .qtag{margin-top:28px;color:var(--nova);font-weight:800;font-size:clamp(16px,2.8vw,22px)}
+  .qlabel{display:inline-block;letter-spacing:.2em;font-size:13px;font-weight:800;color:var(--nova);
+    background:rgba(110,45,196,.08);border:1px solid rgba(110,45,196,.2);border-radius:999px;padding:6px 16px;margin-bottom:24px}
+  .vs{display:flex;align-items:stretch;justify-content:center;gap:16px;margin:36px auto 0;max-width:760px;flex-wrap:wrap}
+  .vscol{flex:1;min-width:240px;border-radius:18px;padding:22px;text-align:left}
+  .vscol.bad{background:#F4F1F7;border:1px solid var(--border)}
+  .vscol.good{background:linear-gradient(160deg,rgba(110,45,196,.10),rgba(224,72,154,.06));border:1.5px solid var(--gold)}
+  .vsh{font-weight:900;font-size:18px;margin-bottom:12px}
+  .vscol.bad .vsh{color:var(--ink3)} .vscol.good .vsh{color:var(--gold)}
+  .vsi{font-size:15px;color:var(--ink2);padding:6px 0 6px 20px;position:relative}
+  .vscol.bad .vsi::before{content:"✕";position:absolute;left:0;color:#B9A8C9;font-size:13px}
+  .vscol.good .vsi::before{content:"✦";position:absolute;left:0;color:var(--gold);font-size:13px}
+  .vsarrow{display:flex;align-items:center;color:var(--gold);font-size:28px;font-weight:900}
+  .trust{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:30px auto 0;max-width:860px}
+  .tcard{flex:1;min-width:170px;background:var(--surf);border:1px solid var(--border);border-radius:16px;
+    padding:20px 16px;box-shadow:0 8px 20px rgba(78,38,140,.07)}
+  .tcard .tv{font-size:clamp(18px,3vw,22px);font-weight:900;color:var(--gold)}
+  .tcard .tl{font-size:14px;color:var(--ink2);margin-top:7px;line-height:1.4}
+  .cta{margin-top:8px;font-size:clamp(18px,3.2vw,24px);font-weight:900;color:var(--nova)}
+
+  /* CLOSING */
+  .closing{text-align:center}
+  .closing h2{font-size:clamp(30px,5.5vw,48px);font-weight:900}
+  .steps{display:flex;flex-wrap:wrap;gap:13px;justify-content:center;margin:30px 0 20px}
+  .step{background:var(--surf);border:1px solid var(--border);border-radius:999px;padding:13px 22px;font-size:16.5px;color:var(--ink2);box-shadow:0 6px 16px rgba(78,38,140,.07)}
+  .closing .contact{color:var(--ink2);font-size:17px;margin-top:12px}
+
+  /* CHROME: progress, counter, arrows, dots */
+  .top{position:fixed;top:0;left:0;right:0;height:4px;background:#EAE3F4;z-index:10}
+  .top .fill{height:100%;width:0;background:linear-gradient(90deg,var(--nova),var(--pink));
+    transition:width .6s cubic-bezier(.66,.02,.2,1);box-shadow:0 0 10px rgba(110,45,196,.4)}
+  .brandtag{position:fixed;top:36px;left:42px;z-index:10;font-weight:900;letter-spacing:.18em;
+    font-size:13px;color:var(--gold)}
+  .counter{position:fixed;top:32px;right:42px;z-index:10;font-size:13px;color:var(--ink3);
+    background:var(--surf);border:1px solid var(--border);border-radius:999px;padding:5px 13px;box-shadow:0 4px 12px rgba(78,38,140,.08)}
+  .counter b{color:var(--gold)}
+  .arrow{position:fixed;top:50%;transform:translateY(-50%);z-index:10;width:50px;height:50px;
+    border-radius:50%;border:1px solid var(--border2);background:#fff;
+    color:var(--gold);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:.18s;box-shadow:0 8px 20px rgba(78,38,140,.12)}
+  .arrow:hover{background:rgba(110,45,196,.10);border-color:var(--nova)}
+  .arrow.disabled{opacity:.3;pointer-events:none}
+  .arrow.prev{left:36px} .arrow.next{right:36px}
+  .dots{position:fixed;bottom:36px;left:50%;transform:translateX(-50%);z-index:10;
+    display:flex;gap:7px;max-width:84vw;flex-wrap:wrap;justify-content:center}
+  .dot{width:9px;height:9px;border-radius:50%;background:#D5CAE8;cursor:pointer;transition:.18s}
+  .dot:hover{background:var(--ink3)}
+  .dot.on{background:var(--gold);width:24px;border-radius:6px;box-shadow:0 0 10px rgba(110,45,196,.4)}
+  .dot.sec{background:rgba(110,45,196,.4)}
+
+  /* MODAL (목차 클릭 팝업) */
+  .modal{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:5vh 4vw;
+    background:rgba(36,20,60,.45);backdrop-filter:blur(5px)}
+  .modal.on{display:flex;animation:mfade .2s ease}
+  @keyframes mfade{from{opacity:0}to{opacity:1}}
+  .mbox{position:relative;width:100%;max-width:840px;max-height:90vh;overflow-y:auto;overflow-x:hidden;
+    background:var(--surf);border-radius:24px;box-shadow:0 36px 90px rgba(36,20,60,.45);
+    animation:mpop .26s cubic-bezier(.2,.7,.3,1.2);scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+  @keyframes mpop{from{transform:translateY(18px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+  .mclose{position:absolute;top:16px;right:16px;z-index:3;width:44px;height:44px;border-radius:50%;
+    border:1px solid var(--border2);background:#fff;color:var(--ink2);font-size:20px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(78,38,140,.12)}
+  .mclose:hover{background:rgba(110,45,196,.1);color:var(--gold)}
+  .mbody .sInner{max-height:none;overflow:visible;padding:0;max-width:none}
+  .mbody .card{box-shadow:none;border:none;padding:38px 44px}
+
+  @media(max-width:600px){
+    .slide{padding:56px 18px 76px}
+    .card{padding:24px 22px} .mbody .card{padding:26px 22px}
+    .arrow{width:42px;height:42px;font-size:19px}
+    .idxbox{min-width:100%;max-width:100%}
+    table.spec th{width:auto}
+  }
+</style>
+</head>
+<body>
+<canvas class="stars" id="stars"></canvas>
+<div class="frame"></div>
+
+<div class="top"><div class="fill" id="prog"></div></div>
+<div class="counter"><b id="cur">1</b> / <span id="tot">0</span></div>
+<div class="footL">© WE GLOW TOGETHER ✦&nbsp;&nbsp;팬덤의 기여까지 함께 빛나게 하는 올인원 팬덤 플랫폼</div>
+<div class="footR">STARGLOW</div>
+
+<div class="stage">
+  <div class="deck" id="deck"></div>
+</div>
+
+<div class="arrow prev" id="prev">‹</div>
+<div class="arrow next" id="next">›</div>
+<div class="dots" id="dots"></div>
+
+<div class="modal" id="modal"><div class="mbox"><button class="mclose" id="mclose" aria-label="닫기">✕</button><div class="mbody" id="mbody"></div></div></div>
+
+<script>
+/* ---------- DATA (편집/추가는 여기만) ---------- */
+const T = (...t)=>t; // tag helper
+const DECK = [
+  {type:'cover'},
+
+  {type:'divider', em:'💰', gnum:'GROUP 1', title:'수익 & 보상', gsub:'아래 보상·정산 방식 중에서 고르고, 추가 인센티브를 더하세요.'},
+  {type:'card', num:'1-1', title:'아티스트가 활동할 때마다 받는 직접 보상', tags:T('중소신인','솔로'),
+    lead:'콘텐츠를 올릴수록 수익이 쌓입니다',
+    pain:'"콘텐츠를 만들어도 그게 바로 수익이 되진 않아요."',
+    ans:'팬 결제와 별개로, <b>아티스트가 앱에서 활동할 때마다</b> 활동 단위로 보상을 지급합니다.',
+    cols:['아티스트 활동','보상'],
+    spec:[['DM(메시지) 발송','<span class="big">건당 10,000원</span>'],['포토카드 신규 등록','<span class="big">건당 10,000원</span>'],['폴(투표) 개설','<span class="big">건당 10,000원</span>'],['릴스 / 클립 업로드','건당 5,000원'],['스토리 업로드','건당 5,000원'],['피드 게시글 작성','건당 2,000원'],['스케줄 등록','건당 2,000원'],['신곡 · 음원 공개','협의 후 결정'],['굿즈 · 팬샵 상품 등록','협의 후 결정'],['펀딩 개설','협의 후 결정'],['공지 · 생일 · 컴백 · 기념일 이벤트','협의 후 결정']],
+    note:'※ 활동 항목·금액은 예시이며, 항목 추가 등 세부 조건은 협의 후 결정합니다.'},
+  {type:'card', num:'1-2', title:'팬이 활동할 때마다 함께 쌓이는 연동 보상', tags:T('중소신인','솔로','글로벌'),
+    lead:'팬덤의 참여가 곧 아티스트의 수익',
+    pain:'"팬이 아무리 열심히 활동해도 그게 우리 수익으로 이어지진 않아요."',
+    ans:'<b>팬이 앱에서 활동할 때마다</b> 참여량에 비례해 아티스트·소속사에 보상이 적립됩니다.',
+    cols:['팬 활동','적립'],
+    spec:[['투표(폴) 참여','참여량 비례 적립'],['팬투표 개설 · 참여','참여량 비례 적립'],['응원 미션 · 일일 퀘스트 · 출석','달성량 비례 적립'],['가챠 뽑기','참여량 비례 적립'],['글로우캣 돌보기 · 배틀','참여량 비례 적립'],['작곡(스튜디오) 참여','참여량 비례 적립'],['게시글 · 스토리 보기 · 좋아요 · 댓글','참여량 비례 적립'],['행성 가입 · 케어 · 레벨업','성장 비례 적립'],['행성 · 콘텐츠 공유','확산량 비례 적립'],['아티스트에게 DM','참여량 비례 적립'],['펀딩 참여 · 제안','참여량 비례 적립'],['굿즈 구매 · 둘러보기','전환 비례 적립'],['생일 · 컴백 · 기념일 응원 · 서포트','참여량 비례 적립'],['친구 초대','초대 수 비례 적립']],
+    note:'※ 적립 방식·구간은 예시이며, 항목 추가 등 세부 조건은 협의 후 결정합니다.'},
+  {type:'card', num:'1-3', title:'팬 결제의 90%를 정산하는 매출 쉐어', tags:T('중소신인','솔로','중견기획사','대형'),
+    lead:'팬 결제의 최대 90%가 소속사로',
+    pain:'"플랫폼 수수료를 너무 많이 떼어가요."',
+    ans:'초기 합류 아티스트에 한해 <b>파격적인 배분율</b>을 적용합니다. 아래 모든 매출의 <b>최대 90%를 소속사에 정산</b>합니다.',
+    stat:{pct:90,big:'90%',label:'팬이 결제한 금액의 <b>최대 90%</b>가 소속사로.<br/>플랫폼 수수료는 단 10%.'},
+    cols:['수익원','분류'],
+    spec:[['Glow 충전','인앱 재화'],['가챠(포토카드)','디지털 수집'],['굿즈 · MD 구매','커머스'],['기프트샵 한정 굿즈','커머스'],['펀딩 후원','팬 펀딩'],['투표권 구매','유료 투표'],['글로우캣 슬롯 · 부스터 · 꾸미기','게임 아이템'],['럭키드로우 티켓','응모'],['생일 · 전광판 광고 서포트','후원']],
+    note:'※ 배분율·정산 주기 등 세부 조건은 협의 후 결정합니다.'},
+  {type:'card', num:'1-4', title:'손실 리스크 0, 최소 매출 보장(MG)', tags:T('중소신인','중견기획사','대형'),
+    lead:'안 나와도 보장, 더 나오면 추가',
+    pain:'"새 플랫폼 들어갔다가 매출이 안 나오면 어쩌죠?"',
+    ans:'입점 후 일정 기간 <b>최소 매출을 보장</b>하고, 초과 매출이 나면 추가 정산합니다.',
+    stats:[{v:'1,000만원',l:'최소 보장 (예: 3개월)'},{v:'1,500만원',l:'실제 매출 예시'}],
+    cols:['항목','내용'],
+    spec:[['보장 기간','예) 3개월'],['정산 방식','보장금 + 초과분 RS'],['소속사 장점','<span class="big">손실 리스크 없음</span>']],
+    note:'※ 보장 금액·기간·조건은 협의 후 결정합니다.'},
+  {type:'card', num:'1-5', title:'매달 · 연간 · 선지급 중 고르는 고정 개런티', tags:T('솔로','중견기획사','대형'),
+    lead:'지급 방식까지 소속사가 선택',
+    ans:'합류 후 일정 기간 <b>고정 개런티</b>를 지급합니다. 아래에서 지급 방식을 고르세요. 유료 매출이 발생하면 RS는 별도로 더해집니다.',
+    extra:`<div style="margin-top:4px">${[['매달 지급','매월 일정액을 정기 지급'],['연간 지급','1년치를 묶어 지급'],['계약 시 선지급','계약 시점에 개런티를 먼저 일괄 지급']].map(o=>`<div class="opt" onclick="this.classList.toggle('sel')"><div class="box">✓</div><div><div class="t">${o[0]}</div><div class="d">${o[1]}</div></div></div>`).join('')}</div>`,
+    cols:['항목','내용'],
+    spec:[['지급 방식','매달 · 연간 · 계약 시 선지급 (셋 중 선택)'],['개런티 금액','월 <span class="big">300만 ~ 1,000만원</span> (연간·선지급은 환산)'],['계약 기간','3개월 / 6개월 / 1년'],['기본 조건','월 2회 이상 콘텐츠 업로드, 월 1회 팬 이벤트 등 협의'],['추가 인센티브','유료 매출 발생 시 RS 별도']],
+    note:'※ 지급 방식·금액·조건(추가 조건 포함)은 협의 후 결정합니다.'},
+  {type:'card', num:'1-6', title:'합류 즉시 받는 초기 정착금 + RS 우대', tags:T('대형','중견기획사'),
+    lead:'합류하는 순간 현금이 들어옵니다',
+    ans:'간판이 되어줄 파트너에게는 합류 시 <b>정착금(사이닝 보너스)</b>을 먼저 지급하고, 이후 수익 분배율을 소속사에 유리하게 우대합니다.',
+    cols:['단계','내용'],
+    spec:[['합류 시','<span class="big">정착금 일시 지급</span>'],['정착금 규모','아티스트 체급별 협의'],['이후 정산','소속사 우대 RS 비율 적용'],['적용 대상','초기 합류 · 간판 파트너 (선별)']],
+    note:'※ 정착금 규모·RS 비율 등은 협의 후 결정합니다.'},
+  {type:'card', num:'1-7', title:'팬덤 성장에 따른 마일스톤 보너스', tags:T('중견기획사','대형'),
+    lead:'팬덤이 클수록 더 받는 구조',
+    pain:'"단순 입점 말고, 팬덤이 커질수록 우리도 더 받는 구조면 좋겠어요."',
+    ans:'팬덤 규모·매출이 목표 구간을 넘을 때마다 <b>추가 정산 보너스</b>를 드립니다.',
+    cols:['달성','보너스'],
+    spec:[['팬덤 규모 달성','구간별 보너스'],['누적 매출(GMV) 달성','구간별 추가 정산'],['컴백 · 앨범 흥행','성과 보너스'],['재계약 · 장기 파트너','롱런 인센티브']],
+    note:'※ 구간·보너스 금액 등 세부 조건은 협의 후 결정합니다.'},
+  {type:'card', num:'1-8', title:'갈아타기 부담을 없애는 전환 비용 지원', tags:T('중견기획사','대형'),
+    lead:'갈아타는 비용 · 리스크, 저희가 분담합니다',
+    pain:'"기존 플랫폼 계약·위약금, 데이터 이관, 팬 이탈이 걱정돼서 못 옮겨요."',
+    ans:'기존 플랫폼에서 옮길 때 드는 <b>비용과 리스크를 당사가 분담</b>합니다. 위약금·법무·데이터 이관·팬 이탈 방지까지 한 번에 지원합니다.',
+    cols:['지원 항목','내용'],
+    spec:[['해지 위약금','기존 플랫폼 위약금 일부 ~ 전액 보전 (협의)'],['법무 검토','계약 해지 적법성 · 권리관계 무상 검토'],['데이터 · 콘텐츠 이관','팬 명단 · 게시물 · 굿즈 데이터 이전 지원'],['이전 기념 이벤트','상금 · 경품 비용 당사 예산 부담'],['전담 온보딩','셋업 · 마이그레이션 전담 매니저 배정']],
+    note:'※ 위약금 보전 범위·한도 등 세부 조건은 협의 후 결정합니다.'},
+
+  {type:'divider', em:'🛠', gnum:'GROUP 2', title:'구축 & 운영 대행', gsub:'소속사는 IP와 아티스트에만 집중하세요. 나머지는 저희가 합니다.'},
+  {type:'card', num:'2-1', title:'공식 팬덤 앱 무료 구축', tags:T('중소신인','솔로'),
+    lead:'개발비 0으로 전용 팬덤 앱',
+    pain:'"자체 앱을 만들려면 개발비도 인력도 없어요."',
+    ans:'별도 개발비 없이 <b>아티스트 전용 팬덤 페이지·커뮤니티·콘텐츠·유료 기능</b>을 당사 플랫폼 내에 구축해 드립니다.',
+    give:['전용 공간(행성) 셋업 대행','커뮤니티·콘텐츠·유료 기능 일괄 제공','<b>원하시면 전용 공간 운영까지 대행 가능</b>']},
+  {type:'card', num:'2-2', title:'MD · 커머스 · 공연 판매 대행', tags:T('중소신인','중견기획사','대형'),
+    lead:'아티스트는 IP에 집중하세요. 상품화 · 판매 · 공연은 Starglow가 책임집니다.',
+    ans:'공지·마케팅은 물론 <b>MD 운영 전 과정</b>을 대행합니다. 온라인 팬미팅·영상통화·콘서트·팬사인회 등 <b>공연 기획·마케팅도 대행</b>합니다.',
+    flow:['기획','디자인','제작','판매','배송','CS'],
+    give:['이벤트: 콘서트 · 팬미팅 · 팬콘서트 · 영상통화 · Q&A · 팬사인회 · 밋앤그린 · 콜밋업 등','소속사는 IP만 제공 · 상품화 · 판매는 당사 담당']},
+  {type:'card', num:'2-3', title:'팬클럽 운영 대행', tags:T('중소신인','중견기획사'),
+    lead:'팬클럽 운영비는 줄이고 수익은 늘리고',
+    ans:'공식 팬클럽 모집·회원 관리·공지·이벤트·혜택까지 통합 운영합니다.',
+    cols:['혜택','내용'],
+    spec:[['공식 멤버 엠블럼','프로필에 팬클럽 인증 배지 표시'],['한정 콘텐츠','팬클럽 전용 공개'],['선예매 우선권','공연 · 팬미팅 · 이벤트 우선 참여'],['Glow 적립','MD 구매 시 Glow 적립 · 활동으로 모은 Glow로 결제 가능'],['팬클럽 활동','게시판 · Vote · 스튜디오 작곡 · Ask 등'],['생일 메시지','아티스트 메시지 제공']]},
+
+  {type:'divider', em:'📊', gnum:'GROUP 3', title:'데이터 & 글로벌 진출', gsub:'팬덤 데이터로 다음 전략을 짭니다.'},
+  {type:'card', num:'3-1', title:'팬덤 데이터 리포트 & 가치 분석 (무료 제공)', tags:T('중견기획사','글로벌','대형'),
+    lead:'공연 · MD · 투자 판단을 데이터로',
+    ans:'팬 활동 데이터로 국가별 팬덤·반응·전환은 물론, 아티스트의 <b>성장성·가치를 재무적으로 환산한 대시보드</b>까지 무상 제공합니다.',
+    cols:['분석 항목','활용'],
+    spec:[['국가별 팬 분포','해외 공연 국가 선정'],['팬 활동량 · 코어 규모','핵심 팬덤 파악'],['콘텐츠 반응','잘 먹히는 콘텐츠 확인'],['구매 전환율','MD / 티켓 판매 예측'],['투표 · 미션 충성도','팬덤 로열티 측정'],['성장성 · 가치 환산','투자 · 광고 협상 무기'],['데이터 기반 타겟','직접 광고/푸시 권한']],
+    note:'※ 제공 항목·범위는 협의 후 결정합니다.'},
+  {type:'card', num:'3-2', title:'해외 공연 수요조사 무료 제공', tags:T('글로벌','중견기획사'),
+    lead:'어느 나라에서 공연할지 데이터로 답',
+    ans:'글로벌 팬덤 반응으로 <b>해외 공연 가능 국가와 예상 티켓 수요</b>를 분석합니다. 팬덤 플랫폼이 곧 해외 진출 테스트베드가 됩니다.',
+    cols:['분석','판단'],
+    spec:[['국가별 팬덤 규모','어느 국가에 팬이 많은지'],['예상 티켓 수요','공연장 규모 판단'],['적정 티켓가','팬덤 구매력 분석'],['MD 판매 가능성','현장 굿즈 예상'],['우선 진출 국가','싱가포르 · 방콕 · 자카르타 등']]},
+
+  {type:'divider', em:'📣', gnum:'GROUP 4', title:'마케팅 & 팬덤 확산', gsub:'트래픽과 예산을 아티스트에게 집중합니다.'},
+  {type:'card', num:'4-1', title:'묻히지 않는 초기 트래픽 몰아주기', tags:T('중소신인','솔로'),
+    lead:'신규 아티스트에 트래픽을 몰아줍니다',
+    pain:'"거대 플랫폼에 들어가면 대형 아티스트한테 트래픽 다 쏠려요."',
+    ans:'확보된 <b>MAU 트래픽을 신규 온보딩 아티스트에게 전폭 집중</b>합니다. 거대 플랫폼에선 못 받는 VIP급 노출을 보장합니다.',
+    stats:[{v:'20만+',l:'누적 MAU 집중'},{v:'메인 배너',l:'풀사이즈 고정'},{v:'단독 푸시',l:'전체 유저 발송'}],
+    give:['앱 메인 화면 고정/풀사이즈 배너','전체 유저 대상 단독 푸시 알림','탐색·추천 우선 노출']},
+  {type:'card', num:'4-2', title:'초기 마케팅 비용 지원', tags:T('중소신인','솔로','글로벌'),
+    lead:'초기 광고 · 콘텐츠 비용을 지원',
+    ans:'입점 초기에는 당사가 SNS 광고·커뮤니티 홍보·콘텐츠 제작 일부를 지원합니다.',
+    cols:['지원','내용'],
+    spec:[['SNS 광고비','월 <span class="big">100만 ~ 500만원</span>'],['숏폼 제작','릴스 / 틱톡 / 쇼츠'],['팬덤 캠페인','투표 / 미션 이벤트'],['글로벌 커뮤니티','X · Instagram · Discord · Telegram'],['언론/PR','필요 시 보도자료']]},
+  {type:'card', num:'4-3', title:'독점 오프라인 이벤트 제작 지원', tags:T('대형','중견기획사'),
+    lead:'합류 기념 팬미팅 · 팝업 비용 지원',
+    ans:'합류 기념 <b>독점 팬미팅 · 팬콘서트 · 콘서트 · 팬사인회 · 팝업스토어 등</b> 개최 시 대관료·기획 비용 일부를 당사 마케팅 예산으로 지원합니다.'},
+  {type:'card', num:'4-4', title:'생일 · 앨범 광고 및 팬 서포트 지원 (팬 참여형)', tags:T('중소신인','글로벌'),
+    lead:'팬이 직접 만드는 아티스트 광고 · 서포트',
+    ans:'팬 투표·미션 결과에 따라 생일·컴백·데뷔기념일 <b>광고</b>와 <b>팬 서포트</b>(생일카페·전광판·서포트 굿즈)를 지원합니다.',
+    cols:['팬 참여','지원 내용'],
+    spec:[['생일 투표 1위','지하철 · 옥외 전광판 광고'],['컴백 응원 이벤트','SNS 광고 집행'],['팬미션 달성','영상 광고 제작'],['글로벌 투표 1위','싱가포르 · 방콕 · 자카르타 광고'],['생일카페 · 서포트','대관 · 굿즈 · 운영 비용 지원'],['전광판 · 응원 서포트','팬덤 모금 연계 · 비용 분담']]},
+  {type:'card', num:'4-5', title:'자발적 홍보를 데이터로 만드는 팬덤 보상 구조', tags:T('중소신인','솔로','글로벌'),
+    lead:'팬의 자발적 홍보를 데이터로',
+    ans:'팬은 아티스트 홍보·성장에 참여하고 보상을 받습니다. 팬덤이 <b>자발적으로 홍보하고, 플랫폼은 그 활동을 데이터화</b>합니다.',
+    cols:['팬 활동','보상'],
+    spec:[['일일 퀘스트 · 출석','Glow 적립'],['응원 미션 달성','Glow + 디지털 포카'],['게시글 · 케어 활동','Glow 적립'],['투표 1위 (팬덤)','배너 노출 · 광고 · 한정 굿즈'],['컬렉션 완성','한정 포카북'],['친구 초대','팬덤 랭킹 반영']]},
+
+  {type:'divider', em:'🤖', gnum:'GROUP 5', title:'기술 · AI 신규 IP', gsub:'흔한 팬 플랫폼이 못 하는 경험을 제안합니다.'},
+  {type:'card', num:'5-1', title:'AI 스튜디오 — 아티스트 보이스로 만드는 팬 콘텐츠', tags:T('솔로','중견기획사','대형'),
+    lead:'팬이 만든 콘텐츠가 IP 수익 + 바이럴로',
+    pain:'"매일 직접 콘텐츠 만드는 게 번아웃이에요."',
+    ans:'팬이 앱 <b>스튜디오에서 AI로 작곡</b>하고 <b>아티스트 목소리로 노래</b>를 만들 수 있습니다. 그 곡으로 영상·바이럴 콘텐츠가 만들어지고, 생성·이용 시마다 저작권료 형태의 수익이 발생합니다.',
+    give:['팬이 AI로 작곡 → 아티스트 보이스 노래 생성','그 곡으로 영상 · 바이럴 콘텐츠 제작','생성 · 이용 시마다 저작권료 형태 수익','아티스트 추가 노동 없이 콘텐츠 · 홍보 확장'],
+    note:'※ 음성·AI 활용은 아티스트·소속사 사전 동의·권리 계약 기반으로만 진행합니다.'},
+  {type:'card', num:'5-2', title:'10개 국어 번역 — 언어 장벽 없는 글로벌 팬덤', tags:T('글로벌','중견기획사','대형'),
+    lead:'번역 걱정 없이 전 세계 팬과 소통',
+    pain:'"해외 팬은 많은데 번역이 먹통이라 소통·매출이 막혀요."',
+    ans:'게시글·댓글·메시지·콘텐츠가 <b>10개 국어로 인라인 번역</b>됩니다. 해외 팬도 언어 장벽 없이 참여하고 결제할 수 있어, 글로벌 팬덤과 매출이 함께 열립니다.',
+    give:['10개 국어 인라인 번역 (한·영·일·중·스페인·포르투갈·인니·태국·베트남 등)','해외 팬 참여 · 결제 장벽 제거','글로벌 커뮤니티 · 매출 확장']},
+
+  {type:'divider', em:'🧩', gnum:'GROUP 6', title:'타입별 추천 패키지', gsub:'내 상황에 맞는 추천 조합을 확인하세요. (보상·정산은 1번에서 자유롭게 조합)'},
+
+  {type:'narrative'},
+  {type:'closing'},
+];
+
+const RECO=[
+  ['#중소신인','<b>매출 쉐어 90% + 현금 0 패키지</b> · 무료구축 + 트래픽으로 부담 없이 시작'],
+  ['#솔로','<b>매출 쉐어 + 활동 보상</b> · 부담 줄이고 콘텐츠마다 보상'],
+  ['#중견기획사','<b>매출 쉐어 + 최소 매출 보장</b> + 데이터 주권 + 공동마케팅'],
+  ['#글로벌','<b>매출 쉐어</b> + 글로벌 결제·번역 + 해외 수요조사'],
+  ['#대형','<b>정착금(또는 MG·고정 개런티) + 매출 쉐어</b> · 간판 우대·선별']
+];
+
+/* ---------- RENDER ---------- */
+function tagsHTML(tags){ return tags && tags.length ? `<div class="tags">${tags.map(t=>`<span class="tag">#${t}</span>`).join('')}</div>`:''; }
+function giveHTML(g){ return g && g.length ? `<ul class="give">${g.map(x=>`<li>${x}</li>`).join('')}</ul>`:''; }
+function specHTML(s,reco,cols){ if(!(s&&s.length))return'';
+  const head = cols?`<thead><tr><th>${cols[0]}</th><th>${cols[1]}</th></tr></thead>`:'';
+  return `<table class="spec ${reco?'reco':''}">${head}<tbody>${s.map(r=>`<tr><th>${r[0]}</th><td>${r[1]}</td></tr>`).join('')}</tbody></table>`; }
+function donutHTML(d){ return `<div class="donutWrap"><div class="donut" style="--p:${d.pct}"><b>${d.big||d.pct+'%'}</b></div><div class="donutTxt">${d.label||''}</div></div>`; }
+function barsHTML(b){ return `<div class="bars">${b.map(x=>`<div class="bar"><span class="bl">${x.l}</span><span class="bt"><span class="bf" style="width:${x.pct}%"></span></span><span class="bv">${x.v}</span></div>`).join('')}</div>`; }
+function flowHTML(f){ return `<div class="flow">${f.map((x,i)=>`${i?'<span class="farr">›</span>':''}<span class="fstep">${x}</span>`).join('')}</div>`; }
+function statsHTML(s){ return `<div class="stats">${s.map(x=>`<div class="stat"><div class="sv">${x.v}</div><div class="sl">${x.l}</div></div>`).join('')}</div>`; }
+
+function render(s){
+  if(s.type==='cover') return `<div class="sInner cover">
+    <div class="coverHead">
+      <span class="hlbox">STARGLOW</span>
+      <div class="t1">ARTIST ONBOARDING</div>
+      <div class="t2">PROPOSAL</div>
+    </div>
+    <div class="hint">스크롤 · → · 스와이프로 넘기기</div>
+  </div>`;
+
+  if(s.type==='legend') return `<div class="sInner"><div class="panel">
+    <h2>이 제안서 보는 법</h2>
+    <div class="lead">슬라이드마다 <b>적용 대상 태그</b>가 붙어 있어요. 본인(아티스트·소속사)에 해당하는 태그가 달린 슬라이드를 중심으로 보시면 됩니다.</div>
+    <table class="legendT">
+      <tr><td><span class="tag">#중소신인</span></td><td>자체 팬 플랫폼이 없거나 DM 앱만 쓰는 중소·신인</td></tr>
+      <tr><td><span class="tag">#솔로</span></td><td>운영 부담을 줄이고 싶은 솔로 아티스트</td></tr>
+      <tr><td><span class="tag">#중견기획사</span></td><td>비-HYBE 중견 — 자체 채널은 있으나 약한 곳</td></tr>
+      <tr><td><span class="tag">#글로벌</span></td><td>해외 팬 비중이 크고 번역·결제가 미해결인 아티스트</td></tr>
+      <tr><td><span class="tag">#대형</span></td><td>톱티어 — 런칭 간판이 되어줄 파트너</td></tr>
+    </table>
+  </div></div>`;
+
+  if(s.type==='divider'){ const n=(String(s.gnum).match(/\d+/)||[''])[0];
+    const extra = n==='6' ? `<div class="recolist" style="max-width:860px;margin:34px auto 0;text-align:left">${RECO.map(r=>`<div class="recorow"><span class="rtag">${r[0]}</span><span class="rcombo">${r[1]}</span></div>`).join('')}</div>` : '';
+    return `<div class="sInner divider">
+    <h2><span class="gn">${n}.</span> ${s.title}</h2>
+    <div class="gsub">${s.gsub}</div>
+    ${extra}
+  </div>`; }
+
+  if(s.type==='card') return `<div class="sInner"><div class="card">
+    <div class="num">${s.num}</div>
+    <h2>${s.title}</h2>
+    ${s.lead?`<div class="lead2">${s.lead}</div>`:''}
+    ${tagsHTML(s.tags)}
+    ${s.pain?`<div class="pain">${s.pain}</div>`:''}
+    ${s.ans?`<div class="ans">${s.ans}</div>`:''}
+    ${s.stat?donutHTML(s.stat):''}
+    ${s.stats?statsHTML(s.stats):''}
+    ${s.bars?barsHTML(s.bars):''}
+    ${s.flow?flowHTML(s.flow):''}
+    ${giveHTML(s.give)}
+    ${specHTML(s.spec,false,s.cols)}
+    ${s.extra||''}
+    ${s.note?`<div class="note">${s.note}</div>`:''}
+  </div></div>`;
+
+  if(s.type==='menu') return `<div class="sInner"><div class="card">
+    <div class="num">SELECT</div>
+    <h2>선택형 인센티브 메뉴</h2>
+    <div class="ans">아티스트 규모·상황에 맞춰 <b>골라서 조합</b>하세요. (카드를 탭하면 선택)</div>
+    <div class="optgrid">
+    ${[['A','매출 쉐어 우대','팬 결제의 최대 90% 정산. 현금 부담 없이, 매출이 클수록 함께.'],
+       ['B','활동 기반 보상','아티스트 활동마다 정액 지급 + 팬 활동마다 연동 적립.'],
+       ['C','최소 매출 보장(MG)','일정 기간 최소 매출 보장 + 초과분 RS. 손실 리스크 0.'],
+       ['D','고정 개런티','월 300만~1,000만. 매달·연간·선지급 중 선택.'],
+       ['E','정착금 + RS 우대','합류 시 일시 지급. 간판 파트너 선별 적용.'],
+       ['F','현금 0 · 비-돈 패키지','무료 구축 + 트래픽 + 마케팅 지원만으로 시작.']]
+      .map(o=>`<div class="optcard" onclick="this.classList.toggle('sel')"><div class="lt">${o[0]}</div><div><div class="ot">${o[1]}</div><div class="od">${o[2]}</div></div></div>`).join('')}
+    </div>
+  </div></div>`;
+
+  if(s.type==='reco') return `<div class="sInner"><div class="card">
+    <div class="num">추천</div>
+    <h2>타입별 추천 패키지</h2>
+    <div class="ans">내 상황에 맞는 기본 조합을 빠르게 확인하세요. <b>보상·정산 방식은 1번에서 자유롭게 조합</b>할 수 있어요.</div>
+    <div class="recolist">
+    ${[['#중소신인','<b>매출 쉐어 90% + 현금 0 패키지</b> · 무료구축 + 트래픽으로 부담 없이 시작'],
+       ['#솔로','<b>매출 쉐어 + 활동 보상</b> · 부담 줄이고 콘텐츠마다 보상'],
+       ['#중견기획사','<b>매출 쉐어 + 최소 매출 보장</b> + 데이터 주권 + 공동마케팅'],
+       ['#글로벌','<b>매출 쉐어</b> + 글로벌 결제·번역 + 해외 수요조사'],
+       ['#대형','<b>정착금(또는 MG·고정 개런티) + 매출 쉐어</b> · 간판 우대·선별']]
+      .map(r=>`<div class="recorow"><span class="rtag">${r[0]}</span><span class="rcombo">${r[1]}</span></div>`).join('')}
+    </div>
+  </div></div>`;
+
+  if(s.type==='narrative') return `<div class="sInner narr">
+    <div class="qlabel">WHY STARGLOW</div>
+    <div class="q"><span class="a">기존 플랫폼은 아티스트의 노동력을 써서 수수료를 떼어갑니다.</span>
+    <span class="b">Starglow는 기술과 데이터로 아티스트의 IP 자체를<br/>높은 가치의 자산으로 불려드립니다.</span></div>
+    <div class="qtag">팬덤의 기여까지 함께 빛나게 하는 올인원 팬덤 플랫폼 ✦</div>
+    <div class="vs">
+      <div class="vscol bad"><div class="vsh">기존 플랫폼</div><div class="vsi">노동 의존 · 높은 수수료</div><div class="vsi">데이터 독점</div><div class="vsi">단발 구독 매출</div></div>
+      <div class="vsarrow">→</div>
+      <div class="vscol good"><div class="vsh">Starglow</div><div class="vsi">기술·데이터로 IP 가치 ↑</div><div class="vsi">데이터는 소속사 소유</div><div class="vsi">다층 수익 + 글로벌</div></div>
+    </div>
+  </div>`;
+
+  if(s.type==='closing') return `<div class="sInner closing">
+    <div class="qlabel">NEXT STEP</div>
+    <h2>리스크 없이, 함께 빛낼 준비가 되어 있습니다 ✦</h2>
+    <div class="trust">
+      <div class="tcard"><div class="tv">비독점</div><div class="tl">기존 계약 유지하며 시작</div></div>
+      <div class="tcard"><div class="tv">데이터 주권</div><div class="tl">팬 데이터는 소속사 소유</div></div>
+      <div class="tcard"><div class="tv">제로 운영</div><div class="tl">셋업·운영·CS 전담 대행</div></div>
+      <div class="tcard"><div class="tv">손실 리스크 0</div><div class="tl">최소 매출 보장 옵션</div></div>
+    </div>
+    <div class="flow" style="justify-content:center;margin:26px 0 18px">
+      <span class="fstep">① 30분 미팅</span><span class="farr">›</span>
+      <span class="fstep">② 맞춤 패키지 제안</span><span class="farr">›</span>
+      <span class="fstep">③ 리스크 없는 파일럿</span><span class="farr">›</span>
+      <span class="fstep">④ 공동 마케팅 런칭</span>
+    </div>
+    <div class="cta">지금, 함께 빛낼 아티스트를 찾습니다 ✦</div>
+    <div class="contact">Contact · 레드슬리퍼스 조현곤 팀장 / 010-9487-7047</div>
+    <div class="note">※ 모든 수치(배분율·개런티·보장금·광고비)는 예시이며 미팅에서 확정합니다. 과장·거짓 임박 없이 사실 그대로 제안합니다.</div>
+  </div>`;
+  return '';
+}
+
+/* 가로로 넘기는 슬라이드 = 표지·그룹표지(목차)·인트로·마무리만. 카드/메뉴/추천은 팝업 전용. */
+const VISIBLE = new Set(['cover','divider','narrative','closing']);
+const deck = document.getElementById('deck');
+const vis = DECK.map((s,i)=>({s,i})).filter(x=>VISIBLE.has(x.s.type));
+deck.innerHTML = vis.map(x=>`<section class="slide">${render(x.s)}</section>`).join('');
+const slides = [...deck.children];
+const N = slides.length;
+document.getElementById('tot').textContent = N;
+const deckToSlide = {}; vis.forEach((x,p)=>{ deckToSlide[x.i]=p; });
+
+/* dots */
+const dotsEl = document.getElementById('dots');
+vis.forEach((x,p)=>{ const d=document.createElement('div');
+  d.className='dot'+(x.s.type==='divider'||x.s.type==='cover'?' sec':'');
+  d.onclick=()=>go(p); dotsEl.appendChild(d); });
+const dots=[...dotsEl.children];
+
+/* nav */
+let idx=0;
+const prog=document.getElementById('prog'), cur=document.getElementById('cur');
+const prevB=document.getElementById('prev'), nextB=document.getElementById('next');
+function go(i){
+  idx=Math.max(0,Math.min(N-1,i));
+  deck.style.transform=`translateX(${-idx*100}vw)`;
+  cur.textContent=idx+1;
+  prog.style.width=((idx)/(N-1)*100)+'%';
+  dots.forEach((d,k)=>d.classList.toggle('on',k===idx));
+  prevB.classList.toggle('disabled',idx===0);
+  nextB.classList.toggle('disabled',idx===N-1);
+  const inner=slides[idx].querySelector('.sInner'); if(inner) inner.scrollTop=0;
+}
+prevB.onclick=()=>go(idx-1); nextB.onclick=()=>go(idx+1);
+
+/* group index boxes on each divider (목차 역할 · 클릭 시 점프) */
+const SHORT={'1-1':'아티스트 활동 보상','1-2':'팬 활동 연동 보상','1-3':'매출 쉐어 90%','1-4':'최소 매출 보장(MG)','1-5':'고정 개런티','1-6':'정착금 + RS 우대','1-7':'마일스톤 보너스','1-8':'전환 비용 지원','2-1':'팬덤 앱 무료 구축','2-2':'MD · 공연 판매 대행','2-3':'팬클럽 운영 대행','3-1':'팬덤 데이터 리포트','3-2':'해외 공연 수요조사','4-1':'트래픽 몰아주기','4-2':'초기 마케팅비 지원','4-3':'오프라인 이벤트 지원','4-4':'생일 · 앨범 광고 · 팬서포트 지원','4-5':'팬덤 보상 구조','5-1':'AI 스튜디오 보이스 콘텐츠','5-2':'10개 국어 번역'};
+const BUCKET={'1-1':'기본 보상 · 정산 방식  (택1 ~ 조합)','1-2':'기본 보상 · 정산 방식  (택1 ~ 조합)','1-3':'기본 보상 · 정산 방식  (택1 ~ 조합)','1-4':'기본 보상 · 정산 방식  (택1 ~ 조합)','1-5':'기본 보상 · 정산 방식  (택1 ~ 조합)','1-6':'기본 보상 · 정산 방식  (택1 ~ 조합)','1-7':'추가 인센티브','1-8':'추가 인센티브','2-1':'구축 대행','2-2':'운영 대행  (선택)','2-3':'운영 대행  (선택)','4-1':'마케팅 지원','4-2':'마케팅 지원','4-3':'마케팅 지원','4-4':'팬덤 확산 지원','4-5':'팬덤 확산 지원'};
+const DIVSEC={'3':'데이터 · 인사이트 제공','5':'기술 · AI 제공'};
+const boxHTML=m=>`<div class="idxbox" data-open="${m.i}">${m.num?`<span class="in">${m.num}</span>`:'<span class="in">✦</span>'}<span class="it">${m.label}</span></div>`;
+(function(){
+  let di=-1, curG=''; const members={};
+  DECK.forEach((s,i)=>{
+    if(s.type==='divider'){di=i;members[i]=[];curG=(String(s.gnum).match(/\d+/)||[''])[0];}
+    else if(di>=0){
+      const label = s.type==='card'?(SHORT[s.num]||s.title) : s.type==='reco'?'타입별 추천 패키지 보기' : null;
+      if(label) members[di].push({i,label,num:s.num||'',bucket:(BUCKET[s.num]||DIVSEC[curG]||'')});
+    }
+  });
+  Object.entries(members).forEach(([di,arr])=>{
+    if(!arr.length) return;
+    const pos=deckToSlide[di]; if(pos==null) return;
+    const inner=slides[pos].querySelector('.sInner'); if(!inner) return;
+    const wrap=document.createElement('div');
+    if(arr.some(m=>m.bucket)){
+      wrap.className='idx idxcol';
+      const order=[]; const byb={};
+      arr.forEach(m=>{ const b=m.bucket||'기타'; if(!byb[b]){byb[b]=[];order.push(b);} byb[b].push(m); });
+      wrap.innerHTML=order.map(b=>`<div class="idxgroup"><div class="idxsec">${b}</div><div class="idxrow">${byb[b].map(boxHTML).join('')}</div></div>`).join('<div class="idxplus">+</div>');
+    } else {
+      wrap.className='idx';
+      wrap.innerHTML=arr.map(boxHTML).join('');
+    }
+    inner.appendChild(wrap);
+  });
+  document.querySelectorAll('.idxbox').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();openModal(+b.dataset.open);}));
+})();
+
+go(0);
+
+/* modal (목차 박스 클릭 → 팝업 창) */
+const modal=document.getElementById('modal'), mbody=document.getElementById('mbody');
+function openModal(i){ mbody.innerHTML=render(DECK[i]); modal.classList.add('on'); modal.scrollTop=0; const mb=modal.querySelector('.mbox'); if(mb) mb.scrollTop=0; }
+function closeModal(){ modal.classList.remove('on'); }
+document.getElementById('mclose').onclick=closeModal;
+modal.addEventListener('click',e=>{ if(e.target===modal) closeModal(); });
+
+/* wheel → horizontal, but allow inner vertical scroll first */
+let lock=false;
+addEventListener('wheel', e=>{
+  if(modal.classList.contains('on')) return; // 모달 열려 있으면 모달 안 스크롤
+  const inner=slides[idx].querySelector('.sInner');
+  const can = inner && inner.scrollHeight > inner.clientHeight+2;
+  const d = Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+  if(can){
+    const atTop=inner.scrollTop<=0, atBot=inner.scrollTop+inner.clientHeight>=inner.scrollHeight-1;
+    if((d>0&&!atBot)||(d<0&&!atTop)) return; // let it scroll inside
+  }
+  e.preventDefault();
+  if(lock||Math.abs(d)<6) return;
+  lock=true; setTimeout(()=>lock=false,640);
+  go(idx+(d>0?1:-1));
+},{passive:false});
+
+/* keyboard */
+addEventListener('keydown', e=>{
+  if(modal.classList.contains('on')){ if(e.key==='Escape') closeModal(); return; }
+  if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();go(idx+1);}
+  else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();go(idx-1);}
+  else if(e.key==='Home'){go(0);} else if(e.key==='End'){go(N-1);}
+});
+
+/* touch swipe (horizontal) */
+let sx=0,sy=0;
+addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+addEventListener('touchend',e=>{
+  if(modal.classList.contains('on')) return;
+  const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+  if(Math.abs(dx)>50 && Math.abs(dx)>Math.abs(dy)) go(idx+(dx<0?1:-1));
+},{passive:true});
+
+/* starfield */
+const cv=document.getElementById('stars'),cx=cv.getContext('2d');let stars=[];
+function rs(){cv.width=innerWidth;cv.height=innerHeight;
+  stars=Array.from({length:90},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.4+.3,a:Math.random(),s:Math.random()*.02+.004}));}
+function tick(){cx.clearRect(0,0,cv.width,cv.height);
+  stars.forEach(st=>{st.a+=st.s;const o=(Math.sin(st.a)+1)/2;
+    cx.beginPath();cx.arc(st.x,st.y,st.r,0,7);cx.fillStyle='rgba(255,240,210,'+(o*.8)+')';cx.fill();});
+  requestAnimationFrame(tick);}
+addEventListener('resize',rs);rs();tick();
+</script>
+</body>
+</html>
