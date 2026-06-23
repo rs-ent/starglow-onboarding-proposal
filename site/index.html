@@ -119,8 +119,20 @@
   .refwrap{margin-top:24px;border-top:1px solid var(--border);padding-top:18px}
   .refcap{font-weight:800;color:var(--nova);font-size:15.5px;letter-spacing:.02em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
   .refcap .refn{background:var(--gold);color:#fff;font-size:12.5px;border-radius:999px;padding:2px 10px;font-weight:800}
+  .refwith{display:inline-flex;align-items:center;gap:7px;margin-left:4px;color:var(--ink3);font-weight:700;font-size:13.5px}
+  .refwith img{height:14px;width:auto;display:block;border-radius:3px}
   .refgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(124px,1fr));gap:11px}
-  .refitem{display:block;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--surf2);aspect-ratio:3/4}
+  .refitem{display:block;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--surf2);aspect-ratio:3/4;padding:0;cursor:zoom-in;width:100%}
+  /* 라이트박스 */
+  .lightbox{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:40px;
+    background:rgba(20,12,38,.86);backdrop-filter:blur(6px);cursor:zoom-out}
+  .lightbox.on{display:flex}
+  .lbinner{position:relative;display:inline-block;line-height:0}
+  .lightbox img{max-width:min(96vw,1100px);max-height:92vh;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.5);cursor:zoom-out}
+  .lbclose{position:absolute;top:10px;right:10px;z-index:61;width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;
+    background:rgba(20,12,38,.55);color:#fff;font-size:20px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center}
+  .lbclose:hover{background:rgba(20,12,38,.8)}
+  @media(max-width:600px){ .lightbox{padding:16px} .lbclose{width:34px;height:34px;font-size:17px;top:7px;right:7px} }
   .refitem img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s}
   .refitem:hover img{transform:scale(1.06)}
   @media(max-width:600px){ .refgrid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))} }
@@ -311,6 +323,7 @@
 <div class="dots" id="dots"></div>
 
 <div class="modal" id="modal"><div class="mbox"><button class="mclose" id="mclose" aria-label="닫기">✕</button><div class="mbody" id="mbody"></div></div></div>
+<div class="lightbox" id="lightbox"><div class="lbinner"><button class="lbclose" id="lbclose" aria-label="닫기">✕</button><img id="lbimg" src="" alt="" /></div></div>
 
 <script>
 /* ---------- DATA (편집/추가는 여기만) ---------- */
@@ -378,19 +391,19 @@ const DECK = [
     pain:'"자체 앱을 만들려면 개발비도 인력도 없어요."',
     ans:'별도 개발비 없이 <b>아티스트 전용 팬덤 페이지·커뮤니티·콘텐츠·유료 기능</b>을 당사 플랫폼 내에 구축해 드립니다.',
     give:['전용 공간(행성) 셋업 대행','커뮤니티·콘텐츠·유료 기능 일괄 제공','<b>원하시면 전용 공간 운영까지 대행 가능</b>']},
-  {type:'card', num:'2-2', title:'공연 · 이벤트 기획 대행', tags:T('중소신인','중견기획사','대형'),
-    lead:'아티스트는 콘텐츠에 집중하세요. 공연·이벤트는 Starglow가 책임집니다.',
-    ans:'온라인 팬미팅·영상통화·콘서트·팬사인회 등 <b>공연·이벤트의 기획·마케팅 전 과정을 대행</b>합니다.',
-    give:['이벤트: 콘서트 · 팬미팅 · 팬콘서트 · 영상통화 · Q&A · 팬사인회 · 밋앤그린 · 콜밋업 등','공지 · 모집 · 마케팅 · 현장 운영까지 일괄 대행','소속사는 콘텐츠(IP)만 제공'],
+  {type:'card', num:'2-2', title:'공연 · 이벤트 기획·운영·마케팅 전 과정 대행', tags:T('중소신인','중견기획사','대형'),
+    lead:'아티스트는 콘텐츠에 집중하세요. 공연·이벤트는 기획부터 운영·마케팅까지 Starglow가 책임집니다.',
+    ans:'온라인 팬미팅·영상통화·콘서트·팬사인회 등 <b>공연·이벤트의 기획·운영·마케팅 전 과정을 대행</b>합니다. 단순 기획이 아니라 모집·티켓·현장 운영·홍보까지 통째로 맡습니다.',
+    give:['이벤트: 콘서트 · 팬미팅 · 팬콘서트 · 영상통화 · Q&A · 팬사인회 · 밋앤그린 · 콜밋업 등','기획 · 공지 · 모집 · 티켓 · 현장 운영 · 마케팅 전 과정 일괄 대행','소속사는 콘텐츠(IP)만 제공'],
     note:'※ 공연·이벤트 지원에 따른 별도의 수익 셰어가 있을 수 있습니다.',
-    refs:{dir:'ref/perf',pre:'perf',n:25,cap:'공연 · 팬미팅 기획/홍보 레퍼런스'}},
+    refs:{dir:'ref/perf',pre:'perf',n:25,cap:'공연 기획/운영/마케팅 레퍼런스',with:'ref/logo/red-slippers.png'}},
   {type:'card', num:'2-3', title:'MD · 상품 판매 대행', tags:T('중소신인','중견기획사','대형'),
     lead:'상품화 · 판매 · 배송 · CS까지 전부 Starglow가.',
     ans:'공지·마케팅은 물론 <b>MD 운영 전 과정</b>을 대행합니다. 소속사는 콘텐츠(IP)만 제공하세요.',
     flow:['기획','디자인','제작','판매','배송','CS'],
     give:['굿즈 · MD 기획부터 배송 · CS까지 일괄 대행','상품화 · 판매는 당사 담당'],
     note:'※ MD·판매 대행 지원에 따른 별도의 수익 셰어가 있을 수 있습니다.',
-    refs:{dir:'ref/md',pre:'md',n:11,cap:'MD · 굿즈 기획/판매 레퍼런스'}},
+    refs:{dir:'ref/md',pre:'md',n:11,cap:'MD 기획/판매 레퍼런스',with:'ref/logo/red-slippers.png'}},
   {type:'card', num:'2-4', title:'팬클럽 운영 대행', tags:T('중소신인','중견기획사'),
     lead:'팬클럽 운영비는 줄이고 수익은 늘리고',
     ans:'공식 팬클럽 모집·회원 관리·공지·이벤트·혜택까지 통합 운영합니다.',
@@ -477,8 +490,9 @@ function flowHTML(f){ return `<div class="flow">${f.map((x,i)=>`${i?'<span class
 function statsHTML(s){ return `<div class="stats">${s.map(x=>`<div class="stat"><div class="sv">${x.v}</div><div class="sl">${x.l}</div></div>`).join('')}</div>`; }
 function refsHTML(r){ if(!r||!r.n)return''; let imgs='';
   for(let i=1;i<=r.n;i++){ const u=`${r.dir}/${r.pre}${String(i).padStart(2,'0')}.jpg`;
-    imgs+=`<a class="refitem" href="${u}" target="_blank" rel="noopener"><img loading="lazy" src="${u}" alt="${(r.cap||'레퍼런스')} ${i}"></a>`; }
-  return `<div class="refwrap"><div class="refcap">📎 ${r.cap||'레퍼런스'} <span class="refn">${r.n}</span></div><div class="refgrid">${imgs}</div></div>`; }
+    imgs+=`<button type="button" class="refitem" data-full="${u}"><img loading="lazy" src="${u}" alt="${(r.cap||'레퍼런스')} ${i}"></button>`; }
+  const w = r.with?`<span class="refwith">with <img src="${r.with}" alt="파트너 로고"></span>`:'';
+  return `<div class="refwrap"><div class="refcap">📎 ${r.cap||'레퍼런스'}${w}</div><div class="refgrid">${imgs}</div></div>`; }
 
 function render(s){
   if(s.type==='cover') return `<div class="sInner cover">
@@ -692,6 +706,15 @@ function openModal(i){ mbody.innerHTML=render(DECK[i]); modal.classList.add('on'
 function closeModal(){ modal.classList.remove('on'); }
 document.getElementById('mclose').onclick=closeModal;
 modal.addEventListener('click',e=>{ if(e.target===modal) closeModal(); });
+
+/* lightbox (레퍼런스 사진 크게 보기 — 새 탭 대신 화면 안에서) */
+const lightbox=document.getElementById('lightbox'), lbimg=document.getElementById('lbimg');
+function openLightbox(u){ lbimg.src=u; lightbox.classList.add('on'); }
+function closeLightbox(){ lightbox.classList.remove('on'); lbimg.src=''; }
+document.addEventListener('click',e=>{ const t=e.target.closest('.refitem'); if(t){ e.stopPropagation(); openLightbox(t.dataset.full); } });
+document.getElementById('lbclose').onclick=closeLightbox;
+lightbox.addEventListener('click',e=>{ if(e.target!==document.getElementById('lbclose')) closeLightbox(); });
+addEventListener('keydown',e=>{ if(e.key==='Escape'&&lightbox.classList.contains('on')) closeLightbox(); });
 
 /* wheel → horizontal, but allow inner vertical scroll first */
 let lock=false;
