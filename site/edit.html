@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-<title>STARGLOW · 아티스트 온보딩 제안서</title>
+<title>STARGLOW · 온보딩 제안서 (편집본)</title>
 <style>
   :root{
     --bg0:#EFE9F8; --bg1:#F7F4FC; --bg3:#6E2DC4;
@@ -158,6 +158,15 @@
   .ebPrimary:hover{filter:brightness(1.08)}
   .ebCount{font-size:13px;color:#D9C9F2;font-weight:700;white-space:nowrap}
   @media(max-width:600px){ .editbar{gap:6px;padding:9px 11px;bottom:10px} .ebInput{min-width:108px} .ebBtn{padding:7px 10px;font-size:12.5px} }
+  /* 아티스트별 프리셋(저장된 카드 선택) */
+  .ebPresets{display:flex;align-items:center;gap:7px;flex-wrap:wrap;width:100%;border-top:1px solid rgba(255,255,255,.14);padding-top:9px;margin-top:2px}
+  .ebTitle2{font-weight:800;font-size:12.5px;color:#E8D9FB;white-space:nowrap}
+  .ebEmpty{font-size:12.5px;color:#B9A9D6}
+  .ebChip{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.14);border-radius:999px;padding:3px 5px 3px 11px}
+  .ebChip .ebChipName{font-size:13px;font-weight:700;cursor:pointer;color:#fff}
+  .ebChip .ebChipName:hover{text-decoration:underline}
+  .ebChip button{border:none;background:rgba(255,255,255,.18);color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:11px;line-height:1;display:grid;place-items:center;font-family:inherit}
+  .ebChip button:hover{background:rgba(255,255,255,.34)}
   /* 5개 그룹은 3 + 2 로 고정 (고정개런티가 혼자 떨어지지 않게) */
   .idxrow.n5 .idxbox,.idxrow.n6 .idxbox{flex:0 0 calc(33.333% - 8px)}
   .idxplus{width:100%;text-align:center;color:var(--gold);font-size:32px;font-weight:900;line-height:1}
@@ -324,6 +333,65 @@
     .idxbox{min-width:100%;max-width:100%}
     table.spec th{width:auto}
   }
+
+  /* ===== 인라인 편집 툴바 ===== */
+  .edbar{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:8px;align-items:center;
+    background:rgba(255,255,255,.92);border:1px solid var(--border2);border-radius:999px;padding:6px 8px 6px 14px;
+    box-shadow:0 6px 22px rgba(110,45,196,.14);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-size:13px}
+  .edbar .edname{border:1px solid var(--border);border-radius:999px;padding:5px 10px;font:inherit;width:108px;color:var(--ink);background:var(--surf2)}
+  .edbar .edname:focus{outline:none;border-color:var(--nova)}
+  .edbar .edstatus{color:var(--ink3);min-width:96px;text-align:center;font-size:12px;white-space:nowrap}
+  .edbar .edbtn{border:none;border-radius:999px;padding:7px 14px;font:inherit;font-weight:800;cursor:pointer;
+    background:linear-gradient(90deg,#6E2DC4,#9B4DE0);color:#fff;letter-spacing:.02em}
+  .edbar .edbtn.on{background:linear-gradient(90deg,#1FA37A,#36c79a)}
+  .edbar .edbtn.ghost{background:var(--surf2);color:var(--nova);border:1px solid var(--border2)}
+  body.editing [data-p]{outline:1px dashed rgba(139,63,214,.45);outline-offset:2px;border-radius:5px;cursor:text;transition:background .12s}
+  body.editing [data-p]:hover{background:rgba(139,63,214,.05)}
+  body.editing [data-p]:focus{outline:2px solid var(--nova);background:rgba(139,63,214,.09)}
+  @media(max-width:600px){ .edbar{top:auto;bottom:62px;font-size:12px} .edbar .edname{width:88px} .edbar .edstatus{min-width:72px} }
+  /* 접속자(presence) 아바타 */
+  .edpeople{display:flex;align-items:center;padding-left:2px}
+  .edpeople .av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:800;border:2px solid #fff;margin-left:-6px;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+  .edpeople .av:first-child{margin-left:0}
+  /* 칸별 잠금(다른 편집자가 그 칸을 편집 중) */
+  body.editing [data-p].locked{outline:2px solid var(--lk)!important;background:transparent!important;cursor:not-allowed;position:relative}
+  body.editing [data-p].locked::after{content:attr(data-lk);position:absolute;top:-9px;right:0;transform:translateY(-100%);
+    background:var(--lk);color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;white-space:nowrap;z-index:5;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  /* 변경 이력 패널 */
+  .hpanel{position:fixed;inset:0;z-index:80;display:none;background:rgba(36,26,61,.42);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+  .hpanel.on{display:block}
+  .hbox{position:absolute;top:0;right:0;height:100%;width:min(420px,92vw);background:var(--surf);box-shadow:-12px 0 40px rgba(110,45,196,.18);display:flex;flex-direction:column}
+  .hhead{display:flex;align-items:center;justify-content:space-between;padding:18px 18px 12px;border-bottom:1px solid var(--border)}
+  .hhead h3{font-size:16px;font-weight:900;color:var(--ink)}
+  .hhead .mclose{position:static}
+  .hlist{flex:1;overflow:auto;padding:12px 14px}
+  .hempty{color:var(--ink3);font-size:13px;text-align:center;padding:40px 10px}
+  .hrow{border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:var(--surf2)}
+  .hrow.cur{border-color:var(--border2);box-shadow:inset 0 0 0 1px var(--border2)}
+  .hrow .hmeta{font-size:12px;color:var(--ink3);display:flex;justify-content:space-between;gap:8px;margin-bottom:6px}
+  .hrow .hprev{font-size:13px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:8px}
+  .hrow .hrestore{border:none;border-radius:999px;padding:5px 12px;font-weight:800;font-size:12px;cursor:pointer;background:linear-gradient(90deg,#6E2DC4,#9B4DE0);color:#fff}
+  .hrow .badge{font-size:10px;font-weight:800;color:var(--mint)}
+  .hbtns{padding:12px 14px;border-top:1px solid var(--border);display:flex;gap:8px}
+  .hbtns button{flex:1;border:none;border-radius:999px;padding:9px;font-weight:800;cursor:pointer;font:inherit}
+  .hbtns .save{background:var(--surf2);color:var(--nova);border:1px solid var(--border2)}
+  .hbtns .undo{background:linear-gradient(90deg,#E0489A,#9B4DE0);color:#fff}
+
+  /* ===== 고급화: 슬라이드 등장 애니메이션 ===== */
+  @keyframes sIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .slide.active .sInner>*{animation:sIn .55s cubic-bezier(.2,.7,.2,1) both}
+  .slide.active .sInner>*:nth-child(2){animation-delay:.05s}
+  .slide.active .sInner>*:nth-child(3){animation-delay:.10s}
+  .slide.active .sInner>*:nth-child(4){animation-delay:.15s}
+  .slide.active .sInner>*:nth-child(n+5){animation-delay:.20s}
+  @media (prefers-reduced-motion: reduce){ .slide.active .sInner>*{animation:none} }
+  /* 편집 안내 토스트 */
+  .edtoast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-8px);z-index:65;
+    background:var(--ink);color:#fff;padding:9px 16px;border-radius:999px;font-size:13px;font-weight:700;
+    box-shadow:0 8px 24px rgba(36,26,61,.3);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;white-space:nowrap}
+  .edtoast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  /* 모바일에서 편집바(?edit)와 인라인 편집 툴바 겹침 방지 */
+  @media(max-width:600px){ body.editmode .edbar{bottom:auto;top:10px} }
 </style>
 </head>
 <body>
@@ -343,15 +411,44 @@
 <div class="arrow next" id="next">›</div>
 <div class="dots" id="dots"></div>
 
+<div class="edbar">
+  <span id="edPeople" class="edpeople" title="현재 편집 중인 사람"></span>
+  <input id="edName" class="edname" placeholder="편집자 이름" />
+  <span id="edStatus" class="edstatus">—</span>
+  <button id="edUndo" class="edbtn ghost" type="button" title="마지막 저장본으로 되돌리기">↶</button>
+  <button id="edHistory" class="edbtn ghost" type="button" title="변경 이력 보기">이력</button>
+  <button id="edToggle" class="edbtn" type="button">✎ 편집</button>
+</div>
+
+<div class="hpanel" id="hpanel"><div class="hbox">
+  <div class="hhead"><h3>변경 이력</h3><button class="mclose" id="hclose" aria-label="닫기">✕</button></div>
+  <div class="hlist" id="hlist"></div>
+  <div class="hbtns">
+    <button class="save" id="hSave" type="button">지금 상태 저장</button>
+    <button class="undo" id="hUndo" type="button">↶ 되돌리기</button>
+  </div>
+</div></div>
+
 <div class="modal" id="modal"><div class="mbox"><button class="mclose" id="mclose" aria-label="닫기">✕</button><div class="mbody" id="mbody"></div></div></div>
 <div class="lightbox" id="lightbox"><div class="lbinner"><button class="lbclose" id="lbclose" aria-label="닫기">✕</button><img id="lbimg" src="" alt="" /></div></div>
+
+<!-- Firebase (실시간 공유 편집) · compat 빌드 -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
 /* ---------- DATA (편집/추가는 여기만) ---------- */
 const T = (...t)=>t; // tag helper
-const DECK = [
-  {type:'cover'},
-  {type:'summary'},
+let DECK = [
+  {type:'cover', t1:'ARTIST ONBOARDING', t2:'PROPOSAL', hint:'스크롤 · → · 스와이프로 넘기기',
+    cstats:[{v:'최대 90%',l:'팬 결제 정산'},{v:'0원',l:'전용 팬덤 앱 구축비'},{v:'목표 20만+',l:'월 이용자 노출'}]},
+  {type:'summary', stitle:'한 장으로 보는 제안', ssub:'관심 가는 항목을 누르면 해당 페이지로 이동해요',
+    scards:[['1','수익 & 보상','수익 90% 정산 + 활동 보상·개런티 등 선택'],
+            ['2','구축 & 운영 대행','전용 앱·MD·공연·팬클럽 전부 대행'],
+            ['3','데이터 & 글로벌','공연·MD·투자 판단용 팬덤 데이터'],
+            ['4','마케팅 & 확산','노출 몰아주기·광고비·팬 서포트 지원'],
+            ['5','기술 · AI · 새 수익원','AI 스튜디오·10개국어 번역 + 글로우캣 포토카드 가챠'],
+            ['6','타입별 추천','상황에 맞는 패키지 추천']]},
 
   {type:'divider', em:'💰', gnum:'GROUP 1', title:'수익 & 보상', kpi:{v:'최대 90%',l:'팬 결제를 소속사에 정산'}, gsub:'아래 보상·정산 방식 중에서 고르고, 추가 인센티브를 더하세요.'},
   {type:'card', num:'1-1', title:'아티스트가 활동할 때마다 받는 직접 보상', tags:T('중소신인','솔로'),
@@ -487,8 +584,19 @@ const DECK = [
 
   {type:'divider', em:'🧩', gnum:'GROUP 6', title:'타입별 추천 패키지', gsub:'상황에 맞는 추천 조합을 확인하세요. (보상·정산은 1번에서 자유롭게 조합)'},
 
-  {type:'narrative'},
-  {type:'closing'},
+  {type:'narrative', qlabel:'WHY STARGLOW',
+    qa:'기존 플랫폼은 아티스트의 노동력을 써서 수수료를 떼어갑니다.',
+    qb:'Starglow는 기술과 데이터로 아티스트의 콘텐츠 가치(IP)를<br/>높은 가치의 자산으로 키워드립니다.',
+    qtag:'팬덤의 기여까지 함께 빛나게 하는 올인원 팬덤 플랫폼 ✦',
+    vsbadh:'기존 플랫폼', vsbad:['노동 의존 · 높은 수수료','데이터 독점','단발 구독 매출'],
+    vsgoodh:'Starglow', vsgood:['기술·데이터로 콘텐츠 가치 ↑','데이터는 소속사 소유','다층 수익 + 글로벌']},
+  {type:'closing', qlabel:'NEXT STEP', ctitle:'위험 없이, 함께 빛낼 준비가 되어 있습니다 ✦',
+    trust:[{v:'비독점',l:'기존 계약 유지하며 시작'},{v:'데이터 주권',l:'팬 데이터는 소속사 소유'},
+           {v:'운영 대행',l:'셋업·운영·CS 전담 대행'},{v:'손실 위험 0',l:'최소 수익 보장 옵션'}],
+    steps:['① 30분 미팅','② 맞춤 패키지 제안','③ 위험 없는 시범 운영','④ 공동 마케팅 런칭'],
+    cta:'지금, 함께 빛낼 아티스트를 찾습니다 ✦',
+    contact:'Contact · 레드슬리퍼스 조현곤 팀장 / 010-9487-7047',
+    note:'※ 모든 수치(배분율·개런티·보장금·광고비)는 예시이며 미팅에서 확정합니다. 과장·거짓 임박 없이 사실 그대로 제안합니다.'},
 ];
 
 const RECO=[
@@ -500,15 +608,17 @@ const RECO=[
 ];
 
 /* ---------- RENDER ---------- */
+/* dp(path): 편집 가능 요소에 data-p 속성을 붙인다. path가 null이면 비편집(정적). */
+const dp = p => p!=null ? ` data-p="${p}"` : '';
 function tagsHTML(tags){ return tags && tags.length ? `<div class="tags">${tags.map(t=>`<span class="tag">#${t}</span>`).join('')}</div>`:''; }
-function giveHTML(g){ return g && g.length ? `<ul class="give">${g.map(x=>`<li>${x}</li>`).join('')}</ul>`:''; }
-function specHTML(s,reco,cols){ if(!(s&&s.length))return'';
-  const head = cols?`<thead><tr><th>${cols[0]}</th><th>${cols[1]}</th></tr></thead>`:'';
-  return `<table class="spec ${reco?'reco':''}">${head}<tbody>${s.map(r=>`<tr><th>${r[0]}</th><td>${r[1]}</td></tr>`).join('')}</tbody></table>`; }
-function donutHTML(d){ return `<div class="donutWrap"><div class="donut" style="--p:${d.pct}"><b>${d.big||d.pct+'%'}</b></div><div class="donutTxt">${d.label||''}</div></div>`; }
+function giveHTML(g,base){ return g && g.length ? `<ul class="give">${g.map((x,k)=>`<li${dp(base!=null?base+'.'+k:null)}>${x}</li>`).join('')}</ul>`:''; }
+function specHTML(s,reco,cols,base,colsBase){ if(!(s&&s.length))return'';
+  const head = cols?`<thead><tr><th${dp(colsBase!=null?colsBase+'.0':null)}>${cols[0]}</th><th${dp(colsBase!=null?colsBase+'.1':null)}>${cols[1]}</th></tr></thead>`:'';
+  return `<table class="spec ${reco?'reco':''}">${head}<tbody>${s.map((r,k)=>`<tr><th${dp(base!=null?base+'.'+k+'.0':null)}>${r[0]}</th><td${dp(base!=null?base+'.'+k+'.1':null)}>${r[1]}</td></tr>`).join('')}</tbody></table>`; }
+function donutHTML(d,base){ return `<div class="donutWrap"><div class="donut" style="--p:${d.pct}"><b${dp(base!=null?base+'.big':null)}>${d.big||d.pct+'%'}</b></div><div class="donutTxt"${dp(base!=null?base+'.label':null)}>${d.label||''}</div></div>`; }
 function barsHTML(b){ return `<div class="bars">${b.map(x=>`<div class="bar"><span class="bl">${x.l}</span><span class="bt"><span class="bf" style="width:${x.pct}%"></span></span><span class="bv">${x.v}</span></div>`).join('')}</div>`; }
-function flowHTML(f){ return `<div class="flow">${f.map((x,i)=>`${i?'<span class="farr">›</span>':''}<span class="fstep">${x}</span>`).join('')}</div>`; }
-function statsHTML(s){ return `<div class="stats">${s.map(x=>`<div class="stat"><div class="sv">${x.v}</div><div class="sl">${x.l}</div></div>`).join('')}</div>`; }
+function flowHTML(f,base){ return `<div class="flow">${f.map((x,i)=>`${i?'<span class="farr">›</span>':''}<span class="fstep"${dp(base!=null?base+'.'+i:null)}>${x}</span>`).join('')}</div>`; }
+function statsHTML(s,base){ return `<div class="stats">${s.map((x,k)=>`<div class="stat"><div class="sv"${dp(base!=null?base+'.'+k+'.v':null)}>${x.v}</div><div class="sl"${dp(base!=null?base+'.'+k+'.l':null)}>${x.l}</div></div>`).join('')}</div>`; }
 function _esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function refsHTML(r){ if(!r||(!r.n&&!r.api))return'';
   const w = r.with?`<span class="refwith">with <img src="${r.with}" alt="파트너 로고"></span>`:'';
@@ -531,20 +641,19 @@ function fillApiRefs(scope){ (scope||document).querySelectorAll('.refapi:not([da
     .catch(()=>{ g.innerHTML='<div class="refmsg">레퍼런스를 불러오지 못했습니다.</div>'; });
 }); }
 
-function render(s){
-  if(s.type==='cover') return `<div class="sInner cover">
+function render(s,i){
+  const P = i!=null ? i+'.' : null; // 이 슬라이드의 편집 경로 prefix
+  if(s.type==='cover'){ const cs=s.cstats||[]; return `<div class="sInner cover">
     <div class="coverHead">
       <span class="hlbox">STARGLOW</span>
-      <div class="t1">ARTIST ONBOARDING</div>
-      <div class="t2">PROPOSAL</div>
+      <div class="t1"${dp(P&&P+'t1')}>${s.t1||''}</div>
+      <div class="t2"${dp(P&&P+'t2')}>${s.t2||''}</div>
     </div>
-    <div class="hint">스크롤 · → · 스와이프로 넘기기</div>
+    <div class="hint"${dp(P&&P+'hint')}>${s.hint||''}</div>
     <div class="coverStats">
-      <div class="cstat"><div class="cv">최대 90%</div><div class="cl">팬 결제 정산</div></div>
-      <div class="cstat"><div class="cv">0원</div><div class="cl">전용 팬덤 앱 구축비</div></div>
-      <div class="cstat"><div class="cv">목표 20만+</div><div class="cl">월 이용자 노출</div></div>
+      ${cs.map((c,k)=>`<div class="cstat"><div class="cv"${dp(P&&P+'cstats.'+k+'.v')}>${c.v}</div><div class="cl"${dp(P&&P+'cstats.'+k+'.l')}>${c.l}</div></div>`).join('')}
     </div>
-  </div>`;
+  </div>`; }
 
   if(s.type==='legend') return `<div class="sInner"><div class="panel">
     <h2>이 제안서 보는 법</h2>
@@ -560,42 +669,36 @@ function render(s){
 
   if(s.type==='divider'){ const n=(String(s.gnum).match(/\d+/)||[''])[0];
     const extra = n==='6' ? `<div class="recolist" style="max-width:860px;margin:34px auto 0;text-align:left">${RECO.map(r=>`<div class="recorow"><span class="rtag">${r[0]}</span><span class="rcombo">${r[1]}</span></div>`).join('')}</div>` : '';
-    const kpi = s.kpi ? `<div class="gkpi"><span class="v">${s.kpi.v}</span><span class="l">${s.kpi.l}</span></div>` : '';
+    const kpi = s.kpi ? `<div class="gkpi"><span class="v"${dp(P&&P+'kpi.v')}>${s.kpi.v}</span><span class="l"${dp(P&&P+'kpi.l')}>${s.kpi.l}</span></div>` : '';
     return `<div class="sInner divider">
-    <div class="dhead"><h2><span class="gn">${n}.</span> ${s.title}</h2>${kpi}</div>
-    <div class="gsub">${s.gsub}</div>
+    <div class="dhead"><h2><span class="gn">${n}.</span> <span${dp(P&&P+'title')}>${s.title}</span></h2>${kpi}</div>
+    <div class="gsub"${dp(P&&P+'gsub')}>${s.gsub}</div>
     ${extra}
   </div>`; }
 
-  if(s.type==='summary') return `<div class="sInner summary">
-    <h2><span style="color:var(--gold)">✦</span> 한 장으로 보는 제안 <span style="color:var(--gold)">✦</span></h2>
-    <div class="ssub">관심 가는 항목을 누르면 해당 페이지로 이동해요</div>
+  if(s.type==='summary'){ const sc=s.scards||[]; return `<div class="sInner summary">
+    <h2><span style="color:var(--gold)">✦</span> <span${dp(P&&P+'stitle')}>${s.stitle||''}</span> <span style="color:var(--gold)">✦</span></h2>
+    <div class="ssub"${dp(P&&P+'ssub')}>${s.ssub||''}</div>
     <div class="sgrid">
-    ${[['1','수익 & 보상','수익 90% 정산 + 활동 보상·개런티 등 선택'],
-       ['2','구축 & 운영 대행','전용 앱·MD·공연·팬클럽 전부 대행'],
-       ['3','데이터 & 글로벌','공연·MD·투자 판단용 팬덤 데이터'],
-       ['4','마케팅 & 확산','노출 몰아주기·광고비·팬 서포트 지원'],
-       ['5','기술 · AI · 새 수익원','AI 스튜디오·10개국어 번역 + 글로우캣 포토카드 가챠'],
-       ['6','타입별 추천','상황에 맞는 패키지 추천']]
-      .map(c=>`<div class="scard" data-group="${c[0]}"><div class="sn">GROUP ${c[0]}</div><div class="st">${c[1]}</div><div class="sk">${c[2]}</div></div>`).join('')}
+    ${sc.map((c,k)=>`<div class="scard" data-group="${c[0]}"><div class="sn">GROUP ${c[0]}</div><div class="st"${dp(P&&P+'scards.'+k+'.1')}>${c[1]}</div><div class="sk"${dp(P&&P+'scards.'+k+'.2')}>${c[2]}</div></div>`).join('')}
     </div>
-  </div>`;
+  </div>`; }
 
   if(s.type==='card') return `<div class="sInner"><div class="card">
-    <div class="num">${s.num}</div>
-    <h2>${s.title}</h2>
-    ${s.lead?`<div class="lead2">${s.lead}</div>`:''}
+    <div class="num"${dp(P&&P+'num')}>${s.num}</div>
+    <h2${dp(P&&P+'title')}>${s.title}</h2>
+    ${s.lead?`<div class="lead2"${dp(P&&P+'lead')}>${s.lead}</div>`:''}
     ${tagsHTML(s.tags)}
-    ${s.pain?`<div class="pain">${s.pain}</div>`:''}
-    ${s.ans?`<div class="ans">${s.ans}</div>`:''}
-    ${s.stat?donutHTML(s.stat):''}
-    ${s.stats?statsHTML(s.stats):''}
+    ${s.pain?`<div class="pain"${dp(P&&P+'pain')}>${s.pain}</div>`:''}
+    ${s.ans?`<div class="ans"${dp(P&&P+'ans')}>${s.ans}</div>`:''}
+    ${s.stat?donutHTML(s.stat,P&&P+'stat'):''}
+    ${s.stats?statsHTML(s.stats,P&&P+'stats'):''}
     ${s.bars?barsHTML(s.bars):''}
-    ${s.flow?flowHTML(s.flow):''}
-    ${giveHTML(s.give)}
-    ${specHTML(s.spec,false,s.cols)}
+    ${s.flow?flowHTML(s.flow,P&&P+'flow'):''}
+    ${giveHTML(s.give,P&&P+'give')}
+    ${specHTML(s.spec,false,s.cols,P&&P+'spec',P&&P+'cols')}
     ${s.extra||''}
-    ${s.note?`<div class="note">${s.note}</div>`:''}
+    ${s.note?`<div class="note"${dp(P&&P+'note')}>${s.note}</div>`:''}
     ${s.refs?refsHTML(s.refs):''}
   </div></div>`;
 
@@ -627,37 +730,31 @@ function render(s){
     </div>
   </div></div>`;
 
-  if(s.type==='narrative') return `<div class="sInner narr">
-    <div class="qlabel">WHY STARGLOW</div>
-    <div class="q"><span class="a">기존 플랫폼은 아티스트의 노동력을 써서 수수료를 떼어갑니다.</span>
-    <span class="b">Starglow는 기술과 데이터로 아티스트의 콘텐츠 가치(IP)를<br/>높은 가치의 자산으로 키워드립니다.</span></div>
-    <div class="qtag">팬덤의 기여까지 함께 빛나게 하는 올인원 팬덤 플랫폼 ✦</div>
+  if(s.type==='narrative'){ const bad=s.vsbad||[], good=s.vsgood||[]; return `<div class="sInner narr">
+    <div class="qlabel"${dp(P&&P+'qlabel')}>${s.qlabel||''}</div>
+    <div class="q"><span class="a"${dp(P&&P+'qa')}>${s.qa||''}</span>
+    <span class="b"${dp(P&&P+'qb')}>${s.qb||''}</span></div>
+    <div class="qtag"${dp(P&&P+'qtag')}>${s.qtag||''}</div>
     <div class="vs">
-      <div class="vscol bad"><div class="vsh">기존 플랫폼</div><div class="vsi">노동 의존 · 높은 수수료</div><div class="vsi">데이터 독점</div><div class="vsi">단발 구독 매출</div></div>
+      <div class="vscol bad"><div class="vsh"${dp(P&&P+'vsbadh')}>${s.vsbadh||''}</div>${bad.map((x,k)=>`<div class="vsi"${dp(P&&P+'vsbad.'+k)}>${x}</div>`).join('')}</div>
       <div class="vsarrow">→</div>
-      <div class="vscol good"><div class="vsh">Starglow</div><div class="vsi">기술·데이터로 콘텐츠 가치 ↑</div><div class="vsi">데이터는 소속사 소유</div><div class="vsi">다층 수익 + 글로벌</div></div>
+      <div class="vscol good"><div class="vsh"${dp(P&&P+'vsgoodh')}>${s.vsgoodh||''}</div>${good.map((x,k)=>`<div class="vsi"${dp(P&&P+'vsgood.'+k)}>${x}</div>`).join('')}</div>
     </div>
-  </div>`;
+  </div>`; }
 
-  if(s.type==='closing') return `<div class="sInner closing">
-    <div class="qlabel">NEXT STEP</div>
-    <h2>위험 없이, 함께 빛낼 준비가 되어 있습니다 ✦</h2>
+  if(s.type==='closing'){ const tr=s.trust||[], st=s.steps||[]; return `<div class="sInner closing">
+    <div class="qlabel"${dp(P&&P+'qlabel')}>${s.qlabel||''}</div>
+    <h2${dp(P&&P+'ctitle')}>${s.ctitle||''}</h2>
     <div class="trust">
-      <div class="tcard"><div class="tv">비독점</div><div class="tl">기존 계약 유지하며 시작</div></div>
-      <div class="tcard"><div class="tv">데이터 주권</div><div class="tl">팬 데이터는 소속사 소유</div></div>
-      <div class="tcard"><div class="tv">운영 대행</div><div class="tl">셋업·운영·CS 전담 대행</div></div>
-      <div class="tcard"><div class="tv">손실 위험 0</div><div class="tl">최소 수익 보장 옵션</div></div>
+      ${tr.map((c,k)=>`<div class="tcard"><div class="tv"${dp(P&&P+'trust.'+k+'.v')}>${c.v}</div><div class="tl"${dp(P&&P+'trust.'+k+'.l')}>${c.l}</div></div>`).join('')}
     </div>
     <div class="flow" style="justify-content:center;margin:26px 0 18px">
-      <span class="fstep">① 30분 미팅</span><span class="farr">›</span>
-      <span class="fstep">② 맞춤 패키지 제안</span><span class="farr">›</span>
-      <span class="fstep">③ 위험 없는 시범 운영</span><span class="farr">›</span>
-      <span class="fstep">④ 공동 마케팅 런칭</span>
+      ${st.map((x,k)=>`${k?'<span class="farr">›</span>':''}<span class="fstep"${dp(P&&P+'steps.'+k)}>${x}</span>`).join('')}
     </div>
-    <div class="cta">지금, 함께 빛낼 아티스트를 찾습니다 ✦</div>
-    <div class="contact">Contact · 레드슬리퍼스 조현곤 팀장 / 010-9487-7047</div>
-    <div class="note">※ 모든 수치(배분율·개런티·보장금·광고비)는 예시이며 미팅에서 확정합니다. 과장·거짓 임박 없이 사실 그대로 제안합니다.</div>
-  </div>`;
+    <div class="cta"${dp(P&&P+'cta')}>${s.cta||''}</div>
+    <div class="contact"${dp(P&&P+'contact')}>${s.contact||''}</div>
+    <div class="note"${dp(P&&P+'note')}>${s.note||''}</div>
+  </div>`; }
   return '';
 }
 
@@ -672,51 +769,29 @@ const SEL = Q.has('cards') ? new Set((Q.get('cards')||'').split(',').map(s=>s.tr
 const VIEWFILTER = !!(SEL && !EDIT);
 const selNum = num => SEL ? SEL.has(num) : true;
 const chkInit = num => SEL ? SEL.has(num) : true;
-const GROUPCARDS={}; { let d=-1; DECK.forEach((s,i)=>{ if(s.type==='divider'){d=i;GROUPCARDS[d]=[];} else if(d>=0){ const nn=s.type==='reco'?'reco':(s.num||''); if(nn) GROUPCARDS[d].push(nn); } }); }
+let GROUPCARDS={};
+function computeGroupCards(){ GROUPCARDS={}; let d=-1; DECK.forEach((s,i)=>{ if(s.type==='divider'){d=i;GROUPCARDS[d]=[];} else if(d>=0){ const nn=s.type==='reco'?'reco':(s.num||''); if(nn) GROUPCARDS[d].push(nn); } }); }
 const dividerActive = i => !VIEWFILTER || (GROUPCARDS[i]||[]).some(selNum);
 const groupActiveNum = g => { if(!VIEWFILTER) return true; if(g==='6'&&SEL.has('reco')) return true; for(const n of SEL){ if(n.indexOf(g+'-')===0) return true; } return false; };
 
 /* 가로로 넘기는 슬라이드 = 표지·그룹표지(목차)·인트로·마무리만. 카드/메뉴/추천은 팝업 전용. */
 const VISIBLE = new Set(['cover','summary','divider','narrative','closing']);
 const deck = document.getElementById('deck');
-let vis = DECK.map((s,i)=>({s,i})).filter(x=>VISIBLE.has(x.s.type));
-if(VIEWFILTER) vis = vis.filter(x=> x.s.type!=='divider' || dividerActive(x.i));
-deck.innerHTML = vis.map(x=>`<section class="slide">${render(x.s)}</section>`).join('');
-const slides = [...deck.children];
-const N = slides.length;
-document.getElementById('tot').textContent = N;
-const deckToSlide = {}; vis.forEach((x,p)=>{ deckToSlide[x.i]=p; });
-
-/* dots */
 const dotsEl = document.getElementById('dots');
-vis.forEach((x,p)=>{ const d=document.createElement('div');
-  d.className='dot'+(x.s.type==='divider'||x.s.type==='cover'?' sec':'');
-  d.onclick=()=>go(p); dotsEl.appendChild(d); });
-const dots=[...dotsEl.children];
-
-/* nav */
-let idx=0;
+const totEl = document.getElementById('tot');
 const prog=document.getElementById('prog'), cur=document.getElementById('cur');
 const prevB=document.getElementById('prev'), nextB=document.getElementById('next');
-function go(i){
-  idx=Math.max(0,Math.min(N-1,i));
-  deck.style.transform=`translateX(${-idx*100}vw)`;
-  cur.textContent=idx+1;
-  prog.style.width=((idx)/(N-1)*100)+'%';
-  dots.forEach((d,k)=>d.classList.toggle('on',k===idx));
-  prevB.classList.toggle('disabled',idx===0);
-  nextB.classList.toggle('disabled',idx===N-1);
-  const fr=document.querySelector('.footR'); if(fr) fr.classList.toggle('up', idx!==0);
-  const inner=slides[idx].querySelector('.sInner'); if(inner) inner.scrollTop=0;
-}
-prevB.onclick=()=>go(idx-1); nextB.onclick=()=>go(idx+1);
+/* DECK 가 원격 업데이트되면 buildAll()로 재구성하므로 가변 상태로 둔다 */
+let vis=[], slides=[], N=0, dots=[], deckToSlide={}, idx=0;
 
-/* group index boxes on each divider (목차 역할 · 클릭 시 점프) */
+/* 목차 박스 라벨/버킷 */
 const SHORT={'1-1':'아티스트 활동 보상','1-2':'팬 활동 연동 보상','1-3':'수익 배분 90%','1-4':'최소 수익 보장','1-5':'고정 개런티','1-6':'성과 보너스','1-7':'전환 비용 지원','2-1':'팬덤 앱 무료 구축','2-2':'공연 대행','2-3':'MD 판매 대행','2-4':'팬클럽 운영 대행','3-1':'팬덤 데이터 리포트','3-2':'해외 공연 수요조사','4-1':'노출 몰아주기','4-2':'오프라인 이벤트 지원','4-3':'생일 · 앨범 광고 · 팬서포트 지원','4-4':'팬덤 보상 구조','5-1':'AI 스튜디오 보이스 콘텐츠','5-2':'10개 국어 번역','5-3':'글로우캣 · 포토카드 가챠'};
 const BUCKET={'1-1':'기본 보상 · 정산 방식 (택1)','1-2':'기본 보상 · 정산 방식 (택1)','1-3':'기본 보상 · 정산 방식 (택1)','1-4':'기본 보상 · 정산 방식 (택1)','1-5':'기본 보상 · 정산 방식 (택1)','1-6':'추가 인센티브','1-7':'추가 인센티브','2-1':'구축 & 운영 대행','2-2':'구축 & 운영 대행','2-3':'구축 & 운영 대행','2-4':'구축 & 운영 대행','4-1':'마케팅 지원','4-2':'마케팅 지원','4-3':'팬덤 확산 지원','4-4':'팬덤 확산 지원'};
 const DIVSEC={'3':'데이터 · 분석 제공','5':'기술 · AI 제공'};
 const boxHTML=m=>`<div class="idxbox" data-open="${m.i}">${EDIT?`<input type="checkbox" class="idxchk" data-num="${m.num}" ${chkInit(m.num)?'checked':''} onclick="event.stopPropagation()">`:''}${/\d-\d/.test(m.num)?`<span class="in">${m.num}</span>`:'<span class="in">✦</span>'}<span class="it">${m.label}</span></div>`;
-(function(){
+
+/* group index boxes on each divider (목차 역할 · 클릭 시 점프) */
+function buildIndexBoxes(){
   let di=-1, curG=''; const members={};
   DECK.forEach((s,i)=>{
     if(s.type==='divider'){di=i;members[i]=[];curG=(String(s.gnum).match(/\d+/)||[''])[0];}
@@ -743,21 +818,57 @@ const boxHTML=m=>`<div class="idxbox" data-open="${m.i}">${EDIT?`<input type="ch
     inner.appendChild(wrap);
   });
   document.querySelectorAll('.idxbox').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();openModal(+b.dataset.open);}));
-})();
+}
 
 /* 요약 카드 → 해당 그룹 페이지로 이동 */
-(function(){
+function buildSummaryLinks(){
   const gslide={};
   DECK.forEach((s,i)=>{ if(s.type==='divider'){ const n=(String(s.gnum).match(/\d+/)||[''])[0]; if(deckToSlide[i]!=null) gslide[n]=deckToSlide[i]; }});
-  document.querySelectorAll('.scard').forEach(c=>c.addEventListener('click',()=>{ const p=gslide[c.dataset.group]; if(p!=null) go(p); }));
-})();
+  document.querySelectorAll('.scard').forEach(c=>c.addEventListener('click',()=>{ if(editMode) return; const p=gslide[c.dataset.group]; if(p!=null) go(p); }));
+}
 
-/* ===== 맞춤 보기: 요약 카드 필터 + 표지 개인화 ===== */
-if(VIEWFILTER){ document.querySelectorAll('.scard').forEach(c=>{ if(!groupActiveNum(c.dataset.group)) c.remove(); }); }
-if(FORNAME){ const cov=document.querySelector('.cover'); if(cov){ const b=document.createElement('div'); b.className='forname'; b.textContent='For. '+FORNAME; cov.insertBefore(b, cov.firstChild); } }
+/* 전체 (재)빌드 — 최초 1회 + DECK 원격 업데이트 시 호출 */
+function buildAll(){
+  computeGroupCards();
+  vis = DECK.map((s,i)=>({s,i})).filter(x=>VISIBLE.has(x.s.type));
+  if(VIEWFILTER) vis = vis.filter(x=> x.s.type!=='divider' || dividerActive(x.i));
+  deck.innerHTML = vis.map(x=>`<section class="slide">${render(x.s, x.i)}</section>`).join('');
+  slides = [...deck.children];
+  N = slides.length;
+  totEl.textContent = N;
+  deckToSlide = {}; vis.forEach((x,p)=>{ deckToSlide[x.i]=p; });
+  dotsEl.innerHTML='';
+  vis.forEach((x,p)=>{ const d=document.createElement('div');
+    d.className='dot'+(x.s.type==='divider'||x.s.type==='cover'?' sec':'');
+    d.onclick=()=>go(p); dotsEl.appendChild(d); });
+  dots=[...dotsEl.children];
+  buildIndexBoxes();
+  buildSummaryLinks();
+  if(VIEWFILTER){ document.querySelectorAll('.scard').forEach(c=>{ if(!groupActiveNum(c.dataset.group)) c.remove(); }); }
+  if(FORNAME){ const cov=document.querySelector('.cover'); if(cov){ const b=document.createElement('div'); b.className='forname'; b.textContent='For. '+FORNAME; cov.insertBefore(b, cov.firstChild); } }
+  go(Math.min(idx, Math.max(0,N-1)));
+  applyEditable(document);
+  applyLocks();
+}
 
-/* ===== 편집 모드: 체크박스로 카드 선택 → 아티스트용 링크 생성 ===== */
-if(EDIT){
+/* nav */
+function go(i){
+  idx=Math.max(0,Math.min(N-1,i));
+  deck.style.transform=`translateX(${-idx*100}vw)`;
+  cur.textContent=idx+1;
+  prog.style.width=(N>1?idx/(N-1)*100:0)+'%';
+  dots.forEach((d,k)=>d.classList.toggle('on',k===idx));
+  slides.forEach((s,k)=>s.classList.toggle('active',k===idx)); // 등장 애니메이션 재생
+  prevB.classList.toggle('disabled',idx===0);
+  nextB.classList.toggle('disabled',idx===N-1);
+  const fr=document.querySelector('.footR'); if(fr) fr.classList.toggle('up', idx!==0);
+  const inner=slides[idx]&&slides[idx].querySelector('.sInner'); if(inner) inner.scrollTop=0;
+}
+prevB.onclick=()=>go(idx-1); nextB.onclick=()=>go(idx+1);
+
+/* ===== 편집 모드(?edit): 체크박스로 카드 선택 → 아티스트용 링크 생성 (한 번만 설정) ===== */
+function setupEditbar(){
+  if(!EDIT || document.querySelector('.editbar')) return;
   document.body.classList.add('editmode');
   const bar=document.createElement('div'); bar.className='editbar';
   bar.innerHTML=`<span class="ebTitle">✎ 편집 모드</span>`+
@@ -766,7 +877,9 @@ if(EDIT){
     `<button id="ebNone" class="ebBtn">전체 해제</button>`+
     `<span id="ebCount" class="ebCount"></span>`+
     `<button id="ebPrev" class="ebBtn">미리보기</button>`+
-    `<button id="ebLink" class="ebBtn ebPrimary">아티스트용 링크 복사</button>`;
+    `<button id="ebLink" class="ebBtn ebPrimary">아티스트용 링크 복사</button>`+
+    `<button id="ebSavePreset" class="ebBtn">＋ 현재 선택 저장</button>`+
+    `<div class="ebPresets" id="ebPresets"></div>`;
   document.body.appendChild(bar);
   const chks=()=>[...document.querySelectorAll('.idxchk')];
   const upd=()=>{ document.getElementById('ebCount').textContent=chks().filter(c=>c.checked).length+'개 선택'; };
@@ -782,14 +895,19 @@ if(EDIT){
     const btn=document.getElementById('ebLink');
     try{ await navigator.clipboard.writeText(url); btn.textContent='복사됨! ✓'; setTimeout(()=>btn.textContent='아티스트용 링크 복사',1600); }
     catch(e){ prompt('아래 링크를 복사해서 아티스트에게 보내세요:', url); } };
+  document.getElementById('ebSavePreset').onclick=savePreset;
+  document.getElementById('ebPresets').addEventListener('click', e=>{
+    const a=e.target.closest('[data-apply]'); if(a){ applyPreset(a.dataset.apply); return; }
+    const l=e.target.closest('[data-link]'); if(l){ copyPresetLink(l.dataset.link); return; }
+    const d=e.target.closest('[data-del]'); if(d){ deletePreset(d.dataset.del); return; }
+  });
+  renderPresets();
   upd();
 }
 
-go(0);
-
 /* modal (목차 박스 클릭 → 팝업 창) */
 const modal=document.getElementById('modal'), mbody=document.getElementById('mbody');
-function openModal(i){ mbody.innerHTML=render(DECK[i]); fillApiRefs(mbody); modal.classList.add('on'); modal.scrollTop=0; const mb=modal.querySelector('.mbox'); if(mb) mb.scrollTop=0; }
+function openModal(i){ mbody.innerHTML=render(DECK[i], i); fillApiRefs(mbody); applyEditable(mbody); applyLocks(); modal.classList.add('on'); modal.scrollTop=0; const mb=modal.querySelector('.mbox'); if(mb) mb.scrollTop=0; }
 function closeModal(){ modal.classList.remove('on'); }
 document.getElementById('mclose').onclick=closeModal;
 modal.addEventListener('click',e=>{ if(e.target===modal) closeModal(); });
@@ -807,7 +925,7 @@ addEventListener('keydown',e=>{ if(e.key==='Escape'&&lightbox.classList.contains
 let lock=false;
 addEventListener('wheel', e=>{
   if(modal.classList.contains('on')) return; // 모달 열려 있으면 모달 안 스크롤
-  const inner=slides[idx].querySelector('.sInner');
+  const inner=slides[idx]&&slides[idx].querySelector('.sInner');
   const can = inner && inner.scrollHeight > inner.clientHeight+2;
   const d = Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
   if(can){
@@ -822,6 +940,10 @@ addEventListener('wheel', e=>{
 
 /* keyboard */
 addEventListener('keydown', e=>{
+  const ae=document.activeElement;
+  if(ae && (ae.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))) return; // 편집/입력 중엔 슬라이드 이동 금지
+  const hp=document.getElementById('hpanel');
+  if(hp && hp.classList.contains('on')){ if(e.key==='Escape') hp.classList.remove('on'); return; }
   if(modal.classList.contains('on')){ if(e.key==='Escape') closeModal(); return; }
   if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();go(idx+1);}
   else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();go(idx-1);}
@@ -832,10 +954,352 @@ addEventListener('keydown', e=>{
 let sx=0,sy=0;
 addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
 addEventListener('touchend',e=>{
-  if(modal.classList.contains('on')) return;
+  if(modal.classList.contains('on') || editMode) return; // 편집 모드에선 스와이프 이동 금지
   const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
   if(Math.abs(dx)>50 && Math.abs(dx)>Math.abs(dy)) go(idx+(dx<0?1:-1));
 },{passive:true});
+
+/* =========================================================
+   인라인 편집 + Firebase Firestore 실시간 공유 편집
+   - DECK 전체를 JSON 문자열(deckJSON)로 한 문서에 저장
+     (Firestore 는 배열-안-배열을 못 쓰므로 통째로 직렬화)
+   - 누가 편집하면 800ms 디바운스로 저장 → onSnapshot 으로 모두 동기화
+   ========================================================= */
+
+/* ▼▼▼ 본인 Firebase 프로젝트의 웹 config (공개값 — 보안은 Firestore 규칙으로) ▼▼▼ */
+const FB_CONFIG = {
+  apiKey: "AIzaSyBetVrNpgvJbyJ42rE06W_Wzyxp97fz-zk",
+  authDomain: "yves-8cb44.firebaseapp.com",
+  projectId: "yves-8cb44",
+  storageBucket: "yves-8cb44.firebasestorage.app",
+  messagingSenderId: "663536971172",
+  appId: "1:663536971172:web:0e64fc0eb1a085f341a531",
+  measurementId: "G-7MZWBY151Q"
+};
+const DOC = { col: "proposals", id: "onboarding-live" }; // 저장 위치 (라이브 전용 · 옛 복사본과 분리)
+/* ▲▲▲ ───────────────────────────────────────────── ▲▲▲ */
+
+let db=null, editMode=false, saveTimer=null, pendingRemote=null;
+let lastJSON = JSON.stringify(DECK);
+let editorName = localStorage.getItem('sg_editor') || '';
+
+/* 공유 편집용 세션 정체성 / 상태 */
+const SID = 's_' + Math.random().toString(36).slice(2,10);
+const COLORS = ['#E0489A','#8B3FD6','#1FA37A','#F0892F','#2D7FF0','#C7417B','#36c79a','#9B4DE0'];
+function colorFor(str){ let h=0; for(const ch of str) h=(h*31+ch.charCodeAt(0))>>>0; return COLORS[h%COLORS.length]; }
+const myColor = colorFor(SID);
+let presenceList = [];   // [{sid,name,color,focus,atMs}]
+let historyList = [];    // [{id,deckJSON,by,at(Date)}]
+let presetsList = [];    // [{id,name,cards[]}] — 아티스트별 카드 선택 묶음
+let myFocus = null;      // 내가 지금 편집 중인 칸 경로
+let heartbeat = null;    // presence 갱신 타이머
+let lastSnapshotJSON = JSON.stringify(DECK); // 마지막으로 이력에 남긴 상태
+
+const statusEl = document.getElementById('edStatus');
+const setStatus = t => { if(statusEl) statusEl.textContent = t; };
+const configured = () => FB_CONFIG.apiKey && !FB_CONFIG.apiKey.includes('PASTE');
+const isEditingNow = () => { const a=document.activeElement; return !!(a && a.isContentEditable); };
+
+/* --- 편집 경로(data-p)로 DECK 값 쓰기: "12.spec.3.1" → DECK[12].spec[3][1] --- */
+function setPath(obj, path, val){
+  const keys = path.split('.'); let o = obj;
+  for(let k=0;k<keys.length-1;k++){ o = o[keys[k]]; if(o==null) return; }
+  o[keys[keys.length-1]] = val;
+}
+
+/* --- contenteditable 토글 --- */
+function applyEditable(root){
+  root.querySelectorAll('[data-p]').forEach(el=>{
+    if(editMode) el.setAttribute('contenteditable','true');
+    else el.removeAttribute('contenteditable');
+  });
+}
+
+/* ===== ② 충돌 방지: 접속자(presence) + 칸별 잠금 ===== */
+const presenceColl = () => db.collection(DOC.col).doc(DOC.id).collection('presence');
+const ACTIVE_MS = 35000; // 이 시간 안에 신호가 있으면 '접속 중'
+
+function activeOthers(){
+  const now = Date.now();
+  return presenceList.filter(p => p.sid!==SID && (now - p.atMs) < ACTIVE_MS);
+}
+/* 다른 편집자가 점유한 칸 → Map(path → {name,color}) */
+function currentLocks(){
+  const m = new Map();
+  activeOthers().forEach(p => { if(p.focus) m.set(p.focus, {name:(p.name||'익명'), color:p.color||'#888'}); });
+  return m;
+}
+function applyLocks(){
+  const locks = currentLocks();
+  document.querySelectorAll('[data-p]').forEach(el=>{
+    const lk = locks.get(el.dataset.p);
+    if(lk){
+      el.classList.add('locked');
+      el.style.setProperty('--lk', lk.color);
+      el.setAttribute('data-lk', lk.name + ' 편집 중');
+      if(editMode) el.setAttribute('contenteditable','false'); // 잠긴 칸은 못 고침
+    } else {
+      el.classList.remove('locked');
+      el.removeAttribute('data-lk');
+      el.style.removeProperty('--lk');
+      if(editMode) el.setAttribute('contenteditable','true');
+    }
+  });
+}
+function renderPresence(){
+  const box = document.getElementById('edPeople'); if(!box) return;
+  const others = activeOthers();
+  box.innerHTML = others.slice(0,5).map(p=>{
+    const init = (p.name||'?').trim().slice(0,1) || '?';
+    return `<span class="av" style="background:${p.color||'#888'}" title="${(p.name||'익명')}${p.focus?' · 편집 중':''}">${init}</span>`;
+  }).join('') + (others.length>5?`<span class="av" style="background:#9690A8" title="외 ${others.length-5}명">+${others.length-5}</span>`:'');
+}
+
+/* presence 쓰기 / 시작 / 정리 */
+function writePresence(){
+  if(!db) return;
+  presenceColl().doc(SID).set({
+    name: editorName || '익명', color: myColor, focus: myFocus || null,
+    at: firebase.firestore.FieldValue.serverTimestamp()
+  }, {merge:true}).catch(()=>{});
+}
+function startPresence(){
+  if(!db) return;
+  writePresence();
+  clearInterval(heartbeat);
+  heartbeat = setInterval(writePresence, 15000);
+}
+function stopPresence(){
+  clearInterval(heartbeat); heartbeat=null; myFocus=null;
+  if(db) presenceColl().doc(SID).delete().catch(()=>{});
+}
+function setFocusPath(path){ myFocus = path || null; writePresence(); }
+
+let toastTimer=null;
+function showToast(msg){
+  let t=document.getElementById('edtoast');
+  if(!t){ t=document.createElement('div'); t.id='edtoast'; t.className='edtoast'; document.body.appendChild(t); }
+  t.textContent=msg; t.classList.add('on');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('on'), 2800);
+}
+function setEditMode(on){
+  editMode = on;
+  document.body.classList.toggle('editing', on);
+  applyEditable(document);
+  applyLocks();
+  const btn=document.getElementById('edToggle');
+  if(btn){ btn.textContent = on ? '✓ 편집 완료' : '✎ 편집'; btn.classList.toggle('on', on); }
+  setStatus(on ? '편집 중 — 클릭해 수정' : (configured()?'동기화됨':'로컬 전용'));
+  if(on){ startPresence(); showToast('✎ 글자를 클릭해 바로 수정하세요 · 자동 저장됩니다'); }
+  else {
+    stopPresence();
+    writeHistory();                       // 편집 종료 = 버전 1개 남김
+    if(pendingRemote){ const p=pendingRemote; pendingRemote=null; applyRemote(p); } // 대기 중 원격 반영
+  }
+}
+
+/* --- 입력 → DECK 갱신 + 저장 예약 (이벤트 위임) --- */
+document.addEventListener('input', e=>{
+  const el=e.target;
+  if(!editMode || !el.dataset || el.dataset.p==null) return;
+  setPath(DECK, el.dataset.p, el.innerHTML);
+  scheduleSave();
+});
+/* 붙여넣기는 서식 없이 순수 텍스트로 (지저분한 HTML 방지) */
+document.addEventListener('paste', e=>{
+  const el=e.target;
+  if(!editMode || !el.dataset || el.dataset.p==null) return;
+  e.preventDefault();
+  const t=((e.clipboardData||window.clipboardData).getData('text/plain')||'');
+  document.execCommand('insertText', false, t);
+});
+/* Enter = 수정 확정(칸 나가기), Shift+Enter = 줄바꿈 */
+document.addEventListener('keydown', e=>{
+  if(!editMode || e.key!=='Enter' || e.shiftKey) return;
+  const el=document.activeElement;
+  if(el && el.dataset && el.dataset.p!=null){ e.preventDefault(); el.blur(); }
+});
+/* 편집 칸에 들어가면 → 그 칸을 내가 점유(presence.focus) → 남들에게 잠금 표시 */
+document.addEventListener('focusin', e=>{
+  const el=e.target;
+  if(editMode && el.dataset && el.dataset.p!=null && !el.classList.contains('locked')) setFocusPath(el.dataset.p);
+});
+/* 편집 칸에서 포커스가 빠지면 → 점유 해제 + 대기 중이던 원격 변경 반영 */
+document.addEventListener('focusout', ()=>{ setTimeout(()=>{
+  if(!isEditingNow()){
+    if(editMode && myFocus){ setFocusPath(null); }
+    if(pendingRemote){ const p=pendingRemote; pendingRemote=null; applyRemote(p); }
+  }
+},80); });
+
+/* --- 저장 (디바운스) --- */
+function scheduleSave(){ clearTimeout(saveTimer); saveTimer=setTimeout(saveDeck, 800); }
+function saveDeck(){
+  lastJSON = JSON.stringify(DECK);
+  if(!db){ setStatus('로컬 전용 (미저장)'); return; }
+  setStatus('저장 중…');
+  db.collection(DOC.col).doc(DOC.id).set({
+    deckJSON: lastJSON,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedBy: editorName || '익명'
+  }, {merge:true})
+   .then(()=> setStatus('저장됨 ✓'))
+   .catch(err=> setStatus('저장 실패: '+(err.code||err.message)));
+}
+
+/* --- 원격 변경 반영 --- */
+function applyRemote(json, by){
+  let next; try{ next=JSON.parse(json); }catch{ return; }
+  DECK = next; lastJSON = json;
+  buildAll();
+  setStatus('업데이트됨' + (by ? ' · '+by : ''));
+}
+
+/* ===== ③ 변경 이력 + 되돌리기 ===== */
+const historyColl = () => db.collection(DOC.col).doc(DOC.id).collection('history');
+function previewOf(json){
+  try{ const d=JSON.parse(json); const card=d.find(x=>x.type==='card'&&x.title); return card?card.title.replace(/<[^>]+>/g,''):'(제안서)'; }
+  catch{ return '(스냅샷)'; }
+}
+function fmtTime(dt){
+  if(!dt) return '방금';
+  const p=n=>String(n).padStart(2,'0');
+  return `${dt.getMonth()+1}/${dt.getDate()} ${p(dt.getHours())}:${p(dt.getMinutes())}`;
+}
+/* 현재 상태를 이력에 1건 추가 (직전 스냅샷과 같으면 생략) */
+function writeHistory(){
+  if(!db) return;
+  const json = JSON.stringify(DECK);
+  if(json === lastSnapshotJSON) return;
+  lastSnapshotJSON = json;
+  historyColl().add({ deckJSON:json, by:editorName||'익명', at:firebase.firestore.FieldValue.serverTimestamp() })
+    .then(()=> setStatus('이력 저장됨'))
+    .catch(()=>{});
+}
+function renderHistory(){
+  const list=document.getElementById('hlist'); if(!list) return;
+  const cur=JSON.stringify(DECK);
+  if(!historyList.length){ list.innerHTML='<div class="hempty">아직 저장된 이력이 없어요.<br/>“지금 상태 저장”을 누르거나 편집을 마치면 버전이 쌓입니다.</div>'; return; }
+  list.innerHTML = historyList.map(h=>{
+    const isCur = h.deckJSON===cur;
+    return `<div class="hrow${isCur?' cur':''}">
+      <div class="hmeta"><span>${fmtTime(h.at)} · ${h.by||'익명'}</span>${isCur?'<span class="badge">현재</span>':''}</div>
+      <div class="hprev">${previewOf(h.deckJSON)}</div>
+      ${isCur?'':`<button class="hrestore" data-restore="${h.id}">이 버전으로 복원</button>`}
+    </div>`;
+  }).join('');
+  list.querySelectorAll('[data-restore]').forEach(b=>b.addEventListener('click',()=>{
+    const h=historyList.find(x=>x.id===b.dataset.restore); if(h) restoreSnapshot(h.deckJSON, h.by);
+  }));
+}
+function restoreSnapshot(json, by){
+  applyRemote(json, by);
+  saveDeck();        // 복원본을 현재(live)로 만들어 모두에게 동기화
+  setStatus('복원됨' + (by?' · '+by:''));
+}
+/* 되돌리기: 현재와 다른 가장 최근 이력으로 복귀 */
+function undo(){
+  const cur=JSON.stringify(DECK);
+  const target=historyList.find(h=>h.deckJSON && h.deckJSON!==cur);
+  if(!target){ setStatus('되돌릴 이력 없음'); return; }
+  restoreSnapshot(target.deckJSON, target.by);
+}
+
+/* ===== 아티스트별 프리셋: 카드 선택 묶음을 DB에 공유 저장 (?edit 모드) ===== */
+const presetsColl = () => db.collection(DOC.col).doc(DOC.id).collection('presets');
+function checkedNums(){ return [...document.querySelectorAll('.idxchk')].filter(c=>c.checked).map(c=>c.dataset.num); }
+function updateEbCount(){ const el=document.getElementById('ebCount'); if(el) el.textContent=[...document.querySelectorAll('.idxchk')].filter(c=>c.checked).length+'개 선택'; }
+function setCheckboxes(cards){ const set=new Set(cards||[]); document.querySelectorAll('.idxchk').forEach(c=>{ c.checked=set.has(c.dataset.num); }); updateEbCount(); }
+function presetLinkURL(p){ const u=new URL(location.href); u.searchParams.delete('edit'); u.searchParams.set('cards',(p.cards||[]).join(',')); if(p.name) u.searchParams.set('for',p.name); else u.searchParams.delete('for'); return u.toString(); }
+function applyPreset(id){ const p=presetsList.find(x=>x.id===id); if(!p) return; setCheckboxes(p.cards); const ai=document.getElementById('artInput'); if(ai) ai.value=p.name||''; setStatus('프리셋 적용 · '+(p.name||'')); }
+function copyPresetLink(id){ const p=presetsList.find(x=>x.id===id); if(!p) return; const url=presetLinkURL(p);
+  navigator.clipboard.writeText(url).then(()=>setStatus('링크 복사됨 · '+(p.name||''))).catch(()=>prompt('아래 링크를 복사해서 보내세요:', url)); }
+function deletePreset(id){ const p=presetsList.find(x=>x.id===id); if(!p) return; if(!confirm(`"${p.name||''}" 프리셋을 삭제할까요?`)) return; if(db) presetsColl().doc(id).delete(); }
+function savePreset(){
+  const ai=document.getElementById('artInput'); let name=(ai&&ai.value.trim())||'';
+  name=(prompt('아티스트(프리셋) 이름을 입력하세요:', name)||'').trim(); if(!name) return;
+  const cards=checkedNums(); if(!cards.length){ alert('카드를 1개 이상 선택하세요.'); return; }
+  if(!db){ alert('클라우드 연결이 필요해요.'); return; }
+  presetsColl().add({ name, cards, by:editorName||'익명', at:firebase.firestore.FieldValue.serverTimestamp() })
+    .then(()=> setStatus('프리셋 저장됨 · '+name)).catch(e=> setStatus('저장 실패: '+(e.code||e.message)));
+}
+function renderPresets(){
+  const box=document.getElementById('ebPresets'); if(!box) return;
+  box.innerHTML = '<span class="ebTitle2">저장된 아티스트:</span>' + (presetsList.length
+    ? presetsList.map(p=>`<span class="ebChip"><b class="ebChipName" data-apply="${p.id}" title="이 선택 불러오기">${_esc(p.name||'(이름없음)')}</b><button data-link="${p.id}" title="이 선택으로 아티스트용 링크 복사">🔗</button><button data-del="${p.id}" title="삭제">✕</button></span>`).join('')
+    : '<span class="ebEmpty">아직 없음 — 카드 고르고 “＋ 현재 선택 저장”</span>');
+}
+
+/* --- Firebase 시작 --- */
+function initCloud(){
+  if(!configured()){ setStatus('로컬 전용 (Firebase 미설정)'); return; }
+  if(typeof firebase==='undefined'){ setStatus('Firebase SDK 로드 실패'); return; }
+  try{
+    firebase.initializeApp(FB_CONFIG);
+    db = firebase.firestore();
+    setStatus('연결 중…');
+    db.collection(DOC.col).doc(DOC.id).onSnapshot(snap=>{
+      if(!snap.exists){ setStatus('초기 저장 중…'); saveDeck(); return; } // 최초 1회 시드
+      const data = snap.data() || {};
+      if(!data.deckJSON) return;
+      if(data.deckJSON === lastJSON){ setStatus('동기화됨'); return; } // 내 변경 메아리
+      if(isEditingNow()){ pendingRemote = data.deckJSON; setStatus('원격 변경 대기'); return; } // 편집 중엔 보류
+      applyRemote(data.deckJSON, data.updatedBy);
+    }, err=> setStatus('연결 오류: '+(err.code||err.message)));
+
+    // ② presence(접속자/잠금) 실시간 구독
+    presenceColl().onSnapshot(snap=>{
+      presenceList = [];
+      snap.forEach(d=>{ const v=d.data()||{}; presenceList.push({
+        sid:d.id, name:v.name, color:v.color, focus:v.focus||null,
+        atMs: (v.at && v.at.toMillis) ? v.at.toMillis() : Date.now()
+      }); });
+      renderPresence(); applyLocks();
+    }, ()=>{});
+
+    // ③ 변경 이력 실시간 구독 (최근 30개)
+    historyColl().orderBy('at','desc').limit(30).onSnapshot(snap=>{
+      historyList = [];
+      snap.forEach(d=>{ const v=d.data()||{}; historyList.push({
+        id:d.id, deckJSON:v.deckJSON, by:v.by, at:(v.at && v.at.toDate)?v.at.toDate():null
+      }); });
+      renderHistory();
+    }, ()=>{});
+
+    // 아티스트별 프리셋(카드 선택 묶음) 실시간 구독
+    presetsColl().onSnapshot(snap=>{
+      presetsList = [];
+      snap.forEach(d=>{ const v=d.data()||{}; presetsList.push({ id:d.id, name:v.name, cards:v.cards||[] }); });
+      presetsList.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ko'));
+      renderPresets();
+    }, ()=>{});
+  }catch(e){ console.error(e); setStatus('Firebase 오류'); }
+}
+/* 접속 중 활성 표시가 만료되면 잠금 해제되도록 주기적 재평가 */
+setInterval(()=>{ if(presenceList.length){ renderPresence(); applyLocks(); } }, 10000);
+
+/* --- 툴바 연결 --- */
+document.getElementById('edToggle').addEventListener('click', ()=> setEditMode(!editMode));
+const nameInput = document.getElementById('edName');
+nameInput.value = editorName;
+nameInput.addEventListener('input', ()=>{ editorName=nameInput.value.trim(); localStorage.setItem('sg_editor', editorName); if(editMode) writePresence(); });
+
+/* 되돌리기 / 이력 패널 */
+const hpanel = document.getElementById('hpanel');
+document.getElementById('edUndo').addEventListener('click', undo);
+document.getElementById('edHistory').addEventListener('click', ()=>{ renderHistory(); hpanel.classList.add('on'); });
+document.getElementById('hclose').addEventListener('click', ()=> hpanel.classList.remove('on'));
+hpanel.addEventListener('click', e=>{ if(e.target===hpanel) hpanel.classList.remove('on'); });
+document.getElementById('hSave').addEventListener('click', ()=>{ saveDeck(); writeHistory(); });
+document.getElementById('hUndo').addEventListener('click', undo);
+
+/* 탭을 닫으면 내 접속 표시 제거 */
+addEventListener('beforeunload', ()=>{ if(db) presenceColl().doc(SID).delete(); });
+
+/* --- 부팅: 기본값으로 즉시 렌더 → 기존 ?edit 설정 → 클라우드 연결 --- */
+buildAll();
+setupEditbar();
+initCloud();
 
 /* starfield */
 const cv=document.getElementById('stars'),cx=cv.getContext('2d');let stars=[];
