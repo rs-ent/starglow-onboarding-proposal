@@ -423,12 +423,13 @@
   body:not(.tools) .editbar{display:none}
   body:not(.tools) .idxchk{display:none}
   body:not(.tools) .idxbox{border-style:solid;border-color:var(--border)}
-  /* 하단 카드선택 바: 접기 버튼 + 점 네비 안 가리게 위로 */
-  .editbar{bottom:54px!important;max-height:42vh;overflow:auto}
+  /* 하단 카드선택 바: 접기 + 드래그 이동 + 점 네비 안 가리게 위로 */
+  .editbar{bottom:54px;max-height:42vh;overflow:auto}
   .editbar .ebFold{background:rgba(255,255,255,.28)}
+  .editbar .ebGrip{cursor:grab;font-size:17px;color:#E8D9FB;padding:0 2px;user-select:none;-webkit-user-select:none;touch-action:none;line-height:1}
   .editbar.collapsed{padding:8px 12px;max-height:none;overflow:visible}
-  .editbar.collapsed > :not(.ebFold){display:none}
-  @media(max-width:600px){ .editbar{bottom:46px!important} }
+  .editbar.collapsed > :not(.ebFold):not(.ebGrip){display:none}
+  @media(max-width:600px){ .editbar{bottom:46px} }
 </style>
 </head>
 <body>
@@ -487,8 +488,7 @@ let DECK = [
             ['2','구축 & 운영 대행','전용 앱·MD·공연·팬클럽 전부 대행'],
             ['3','데이터 & 글로벌','공연·MD·투자 판단용 팬덤 데이터'],
             ['4','마케팅 & 확산','노출 몰아주기·광고비·팬 서포트 지원'],
-            ['5','기술 · AI · 새 수익원','AI 스튜디오·10개국어 번역 + 글로우캣 포토카드 가챠'],
-            ['6','타입별 추천','상황에 맞는 패키지 추천']]},
+            ['5','기술 · AI · 새 수익원','AI 스튜디오·10개국어 번역 + 글로우캣 포토카드 가챠']]},
 
   {type:'divider', em:'💰', gnum:'GROUP 1', title:'수익 & 보상', kpi:{v:'최대 90%',l:'팬 결제를 소속사에 정산'}, gsub:'아래 보상·정산 방식 중에서 고르고, 추가 인센티브를 더하세요.'},
   {type:'card', num:'1-1', title:'아티스트가 활동할 때마다 받는 직접 보상', tags:T('중소신인','솔로'),
@@ -621,8 +621,6 @@ let DECK = [
     cols:['수익원','내용'],
     spec:[['포토카드 가챠','한정 · 시즌 · 컴백 테마 뽑기'],['글로우캣 꾸미기','슬롯 · 부스터 · 꾸미기 아이템'],['한정 컬렉션','컬렉션 완성 보상 · 한정 포토카드북'],['시즌 · 컴백 연동','앨범 · 생일 · 이벤트마다 신규 발매']],
     note:'※ 디지털 굿즈 매출은 팬 결제 정산(최대 90%)에 포함됩니다.'},
-
-  {type:'divider', em:'🧩', gnum:'GROUP 6', title:'타입별 추천 패키지', gsub:'상황에 맞는 추천 조합을 확인하세요. (보상·정산은 1번에서 자유롭게 조합)'},
 
   {type:'narrative', qlabel:'WHY STARGLOW',
     qa:'기존 플랫폼은 아티스트의 노동력을 써서 수수료를 떼어갑니다.',
@@ -911,7 +909,8 @@ function setupEditbar(){
   if(!EDIT || document.querySelector('.editbar')) return;
   document.body.classList.add('editmode');
   const bar=document.createElement('div'); bar.className='editbar';
-  bar.innerHTML=`<button id="ebFold" class="ebBtn ebFold" type="button" title="접기/펼치기">▾ 접기</button>`+
+  bar.innerHTML=`<span class="ebGrip" title="드래그해서 이동">⠿</span>`+
+    `<button id="ebFold" class="ebBtn ebFold" type="button" title="접기/펼치기">▾ 접기</button>`+
     `<span class="ebTitle">✎ 카드 선택</span>`+
     `<input id="artInput" class="ebInput" placeholder="아티스트 이름 (선택)" value="${_esc(FORNAME)}">`+
     `<button id="ebAll" class="ebBtn">전체 선택</button>`+
@@ -946,6 +945,23 @@ function setupEditbar(){
   });
   renderPresets();
   upd();
+
+  /* 손잡이(⠿) 드래그로 바 이동 + 위치 기억 */
+  const grip=bar.querySelector('.ebGrip');
+  if(grip){
+    const place=(l,t)=>{ const mL=innerWidth-bar.offsetWidth-4, mT=innerHeight-bar.offsetHeight-4;
+      bar.style.left=Math.max(4,Math.min(mL,l))+'px'; bar.style.top=Math.max(4,Math.min(mT,t))+'px';
+      bar.style.right='auto'; bar.style.bottom='auto'; bar.style.transform='none'; };
+    try{ const p=JSON.parse(localStorage.getItem('eb_pos')||'null'); if(p) place(p.l,p.t); }catch(_){}
+    let drag=false,sx,sy,ox,oy;
+    grip.addEventListener('pointerdown',e=>{ drag=true; grip.setPointerCapture(e.pointerId);
+      const r=bar.getBoundingClientRect(); place(r.left,r.top); sx=e.clientX; sy=e.clientY; ox=r.left; oy=r.top;
+      grip.style.cursor='grabbing'; e.preventDefault(); });
+    grip.addEventListener('pointermove',e=>{ if(!drag) return; place(ox+(e.clientX-sx), oy+(e.clientY-sy)); });
+    const end=()=>{ if(!drag) return; drag=false; grip.style.cursor='grab';
+      try{ localStorage.setItem('eb_pos',JSON.stringify({l:parseInt(bar.style.left)||0,t:parseInt(bar.style.top)||0})); }catch(_){} };
+    grip.addEventListener('pointerup',end); grip.addEventListener('pointercancel',end);
+  }
 }
 
 /* modal (목차 박스 클릭 → 팝업 창) */
