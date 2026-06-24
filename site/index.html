@@ -859,14 +859,21 @@ addEventListener('resize',rs);rs();tick();
   const docIdFor=(a,v)=>(String(a)+'__'+String(v)).replace(/[\/#?.\[\]*]/g,'-').slice(0,300);
   const hashFor=(a,v)=>'#'+encodeURIComponent(a)+'/'+encodeURIComponent(v);
   const bar=document.createElement('div'); bar.id='cloneBar';
-  bar.innerHTML='<button id="cbClone" type="button">＋ 복제하기</button><a id="cbList" href="edit.html#list">☰ 목록</a>';
+  bar.innerHTML='<button id="cbToggle" type="button" title="관리 메뉴">⚙</button>'
+    +'<div id="cbMenu"><button id="cbClone" type="button">＋ 복제하기</button><a id="cbList" href="edit.html#list">☰ 목록</a></div>';
   document.body.appendChild(bar);
   const css=document.createElement('style');
-  css.textContent='#cloneBar{position:fixed;top:58px;right:42px;z-index:30;display:flex;gap:8px;align-items:center}'
-    +'#cloneBar button,#cloneBar a{font-family:inherit;border:1px solid #D9CDEE;background:rgba(255,255,255,.92);color:#6E2DC4;border-radius:999px;padding:8px 14px;font-size:13px;font-weight:800;cursor:pointer;text-decoration:none;box-shadow:0 6px 18px rgba(110,45,196,.14);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}'
-    +'#cloneBar #cbClone{background:linear-gradient(90deg,#6E2DC4,#9B4DE0);color:#fff;border:none}'
+  css.textContent='#cloneBar{position:fixed;top:56px;right:42px;z-index:30;display:flex;flex-direction:column;align-items:flex-end;gap:8px}'
+    +'#cbToggle{width:38px;height:38px;border-radius:50%;border:1px solid #D9CDEE;background:rgba(255,255,255,.85);color:#6E2DC4;font-size:17px;cursor:pointer;box-shadow:0 6px 18px rgba(110,45,196,.14);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-family:inherit;opacity:.55;transition:opacity .15s,transform .25s}'
+    +'#cbToggle:hover{opacity:1}'
+    +'#cbMenu{display:none;flex-direction:column;align-items:flex-end;gap:8px}'
+    +'#cbMenu.on{display:flex}'
+    +'#cloneBar.open #cbToggle{opacity:1;transform:rotate(90deg)}'
+    +'#cbMenu button,#cbMenu a{font-family:inherit;border:1px solid #D9CDEE;background:rgba(255,255,255,.95);color:#6E2DC4;border-radius:999px;padding:8px 14px;font-size:13px;font-weight:800;cursor:pointer;text-decoration:none;box-shadow:0 6px 18px rgba(110,45,196,.16);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);white-space:nowrap}'
+    +'#cbMenu #cbClone{background:linear-gradient(90deg,#6E2DC4,#9B4DE0);color:#fff;border:none}'
     +'@media(max-width:600px){#cloneBar{top:auto;bottom:64px;right:14px}}';
   document.head.appendChild(css);
+  document.getElementById('cbToggle').onclick=function(){ bar.classList.toggle('open'); document.getElementById('cbMenu').classList.toggle('on'); };
   document.getElementById('cbClone').onclick=async function(){
     if(!db){ alert('클라우드 연결이 필요해요. 잠시 후 다시 시도하세요.'); return; }
     const artist=(prompt('아티스트 이름:','')||'').trim(); if(!artist) return;
