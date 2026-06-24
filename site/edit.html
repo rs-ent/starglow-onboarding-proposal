@@ -423,6 +423,12 @@
   body:not(.tools) .editbar{display:none}
   body:not(.tools) .idxchk{display:none}
   body:not(.tools) .idxbox{border-style:solid;border-color:var(--border)}
+  /* 하단 카드선택 바: 접기 버튼 + 점 네비 안 가리게 위로 */
+  .editbar{bottom:54px!important;max-height:42vh;overflow:auto}
+  .editbar .ebFold{background:rgba(255,255,255,.28)}
+  .editbar.collapsed{padding:8px 12px;max-height:none;overflow:visible}
+  .editbar.collapsed > :not(.ebFold){display:none}
+  @media(max-width:600px){ .editbar{bottom:46px!important} }
 </style>
 </head>
 <body>
@@ -905,7 +911,8 @@ function setupEditbar(){
   if(!EDIT || document.querySelector('.editbar')) return;
   document.body.classList.add('editmode');
   const bar=document.createElement('div'); bar.className='editbar';
-  bar.innerHTML=`<span class="ebTitle">✎ 편집 모드</span>`+
+  bar.innerHTML=`<button id="ebFold" class="ebBtn ebFold" type="button" title="접기/펼치기">▾ 접기</button>`+
+    `<span class="ebTitle">✎ 카드 선택</span>`+
     `<input id="artInput" class="ebInput" placeholder="아티스트 이름 (선택)" value="${_esc(FORNAME)}">`+
     `<button id="ebAll" class="ebBtn">전체 선택</button>`+
     `<button id="ebNone" class="ebBtn">전체 해제</button>`+
@@ -930,6 +937,8 @@ function setupEditbar(){
     try{ await navigator.clipboard.writeText(url); btn.textContent='복사됨! ✓'; setTimeout(()=>btn.textContent='아티스트용 링크 복사',1600); }
     catch(e){ prompt('아래 링크를 복사해서 아티스트에게 보내세요:', url); } };
   document.getElementById('ebSavePreset').onclick=savePreset;
+  const fold=document.getElementById('ebFold');
+  fold.onclick=()=>{ const c=bar.classList.toggle('collapsed'); fold.textContent=c?'▴ 카드 선택':'▾ 접기'; };
   document.getElementById('ebPresets').addEventListener('click', e=>{
     const a=e.target.closest('[data-apply]'); if(a){ applyPreset(a.dataset.apply); return; }
     const l=e.target.closest('[data-link]'); if(l){ copyPresetLink(l.dataset.link); return; }
